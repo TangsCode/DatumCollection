@@ -79,14 +79,6 @@ namespace DatumCollection
             OsDescription = $"{Environment.OSVersion.Platform} {Environment.OSVersion.Version}";
         }
 
-        public static void SetMutiThread()
-        {
-            ThreadPool.SetMinThreads(256, 256);
-#if NETSTANDARD
-            ServicePointManager.DefaultConnectionLimit = 1000;
-#endif
-        }
-
         private static SystemOptions _options;
         /// <summary>
         /// 获取系统选项
@@ -144,30 +136,5 @@ namespace DatumCollection
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         }
 
-        public static ConfigurationBuilder CreateConfigurationBuilder(string config = null)
-        {
-            var configurationBuilder = new ConfigurationBuilder();
-            configurationBuilder.SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
-
-            if (File.Exists(DefaultAppSettings))
-            {
-                configurationBuilder.AddJsonFile(DefaultAppSettings, false,
-                    true);
-            }
-
-            if (!string.IsNullOrWhiteSpace(config) && config != DefaultAppSettings && File.Exists(config))
-            {
-                configurationBuilder.AddJsonFile(config, false,
-                    true);
-            }
-            configurationBuilder.AddCommandLine(Environment.GetCommandLineArgs(), SwitchMappings);
-            configurationBuilder.AddEnvironmentVariables();
-            return configurationBuilder;
-        }
-
-        public static IConfiguration CreateConfiguration(string config = null, string[] args = null)
-        {
-            return CreateConfigurationBuilder(config).Build();
-        }
     }
 }
