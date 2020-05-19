@@ -2,7 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatumCollection.Core\DatumCollection.Core.csproj" />
-    <ProjectReference Include="..\DatumCollection\DatumCollection.csproj" />
   </ItemGroup>
 
   <ItemGroup>

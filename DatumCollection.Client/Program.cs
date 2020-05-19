@@ -1,12 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using DatumCollection;
-using DatumCollection.Console;
-using DatumCollection.Data;
-using DatumCollection.Data.Entity;
-using DatumCollection.Spiders;
-using DatumCollection.Utility.Helper;
+﻿
+
+using DatumCollection.Core.Hosting;
 
 namespace DatumCollection.Client
 {
@@ -14,19 +8,11 @@ namespace DatumCollection.Client
     {
         static void Main(string[] args)
         {
-            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
-            StartUp.ExecuteSpider<SpiderOne>();
+            CreateSpiderHostBuilder(args).Build().Run();
         }
 
-        private static void CurrentDomain_ProcessExit(object sender, EventArgs e)
-        {
-            var processes = Process.GetProcesses().Where(p =>
-            p.ProcessName.ToLower() == "chromedriver");
-            foreach (var process in processes)
-            {                
-                process.Kill();
-            }
-        }        
+        static ISpiderHostBuilder CreateSpiderHostBuilder(string[] args) =>
+            new SpiderHostBuilderFactory().CreateDefaultBuilder(args).UseStartUp<Startup>();
 
     }
 }
