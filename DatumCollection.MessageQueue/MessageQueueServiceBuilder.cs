@@ -5,11 +5,11 @@ using System.Text;
 
 namespace DatumCollection.MessageQueue
 {
-    public class MessageQueueBuilder
+    public class MessageQueueServiceBuilder
     {
         public IServiceCollection Services { get; }
 
-        public MessageQueueBuilder(IServiceCollection services)
+        public MessageQueueServiceBuilder(IServiceCollection services)
         {
             Services = services;
         }

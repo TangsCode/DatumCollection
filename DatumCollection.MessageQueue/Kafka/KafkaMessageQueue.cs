@@ -16,7 +16,7 @@ namespace DatumCollection.MessageQueue.Kafka
     {
         private ILogger<KafkaMessageQueue> _logger;
 
-        private SystemOptions _options;
+        private SpiderClientConfiguration _config;
 
         private IProducer<string, string> _producer;
 
@@ -24,20 +24,22 @@ namespace DatumCollection.MessageQueue.Kafka
 
         public KafkaMessageQueue(
             ILogger<KafkaMessageQueue> logger,
-            SystemOptions options
+            SpiderClientConfiguration config
             )
         {
             _logger = logger;
-            var config = new ProducerConfig { BootstrapServers = options.KafkaBootstrapServers };
-            _producer = new ProducerBuilder<string, string>(config).Build();
+            _config = config;
+            var producerConfig = new ProducerConfig { BootstrapServers = _config.KafkaBootstrapServers };
+            _producer = new ProducerBuilder<string, string>(producerConfig).Build();
             var consumerConfig = new ConsumerConfig
             {
-                GroupId = options.KafkaConsumerGroup,
-                BootstrapServers = options.KafkaBootstrapServers,
+                GroupId = _config.KafkaConsumerGroup,
+                BootstrapServers = _config.KafkaBootstrapServers,
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
             _consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
         }
+
         public Task PublishAysnc(string topic, Message message)
         {
             try
