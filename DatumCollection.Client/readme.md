@@ -1,5 +1,5 @@
 ﻿
-*Usage for spider client:
+* Usage for spider client:
 
 <code>
 	static void Main(string[] args)
@@ -16,5 +16,5 @@
 you can contruct your startup by inheritating from interface <code>ISatrtUp</code>,
 implementing member <code>IServiceProvider ConfigureServices(IServiceCollection services);</code>
 
-*Spider client configuration:<br />
+* Spider client configuration:<br />
 detail configuration items please take a look at appsettings.json.
