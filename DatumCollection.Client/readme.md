@@ -6,7 +6,8 @@ usage for spider client:
         {
             CreateSpiderHostBuilder(args).Build().Run();
         }
-
+</code>
+<code>
     static ISpiderHostBuilder CreateSpiderHostBuilder(string[] args) =>
         new SpiderHostBuilderFactory().CreateDefaultBuilder(args).UseStartUp<Startup>();
 </code>
@@ -14,5 +15,5 @@ usage for spider client:
 you can contruct your startup by inheritating fron interface <code>ISatrtUp</code>,
 implementing member <code>IServiceProvider ConfigureServices(IServiceCollection services);</code>
 
-spider client configuration:
+spider client configuration:<br />
 detail configuration items please take a look at appsettings.json.
