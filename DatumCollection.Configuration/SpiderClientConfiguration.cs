@@ -19,6 +19,13 @@ namespace DatumCollection.Configuration
             _configuration = configuration;
         }
 
+        #region host configuration
+        IConfigurationSection _host => _configuration.GetSection("spiderHost");
+
+        public virtual int SpiderHostTimeout => int.Parse(_host.GetSection("timeout").Value);
+
+        #endregion
+
         #region hardware resources restraint
         IConfigurationSection _hardware => _configuration.GetSection("hardwareResourcesRestraint");
 
