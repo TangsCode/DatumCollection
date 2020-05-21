@@ -1,26 +1,28 @@
-﻿using Dapper;
-using DatumCollection.Configuration;
+﻿using DatumCollection.Configuration;
+using DatumCollection.Data.SqlServer;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
 using System.Text;
-using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
+using System.Linq;
 
-namespace DatumCollection.Data.SqlServer
+namespace DatumCollection.Data.MySql
 {
-    public class SqlServerStorage : IDataStorage
+    public class MySqlStorage : IDataStorage
     {
+
         protected readonly ILogger<SqlServerStorage> _logger;
 
         protected readonly SpiderClientConfiguration _config;
 
-        public SqlServerStorage(
+        public MySqlStorage(
             ILogger<SqlServerStorage> logger,
-            SpiderClientConfiguration config
-            )
+            SpiderClientConfiguration config)
         {
             _logger = logger;
             _config = config;
@@ -92,7 +94,7 @@ namespace DatumCollection.Data.SqlServer
                             break;
                     }
                     result.RowsAffected = await conn.ExecuteAsync(sql, context.Parameters, transaction);
-                    transaction?.Commit();                    
+                    transaction?.Commit();
                 }
                 catch (Exception e)
                 {
@@ -115,7 +117,7 @@ namespace DatumCollection.Data.SqlServer
                 {
                     string sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters[0]?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
                     if (context.UseQueryString) { sql = context.QueryString; }
-                    result = await conn.QueryAsync<T>(sql, context.Parameters, transaction);                    
+                    result = await conn.QueryAsync<T>(sql, context.Parameters, transaction);
                 }
                 catch (Exception e)
                 {
@@ -130,15 +132,15 @@ namespace DatumCollection.Data.SqlServer
         {
             try
             {
-                IDbConnection conn = new SqlConnection(_config.ConnectionString);
+                IDbConnection conn = new MySqlConnection(_config.ConnectionString);
                 conn.Open();
                 return conn;
             }
             catch (Exception e)
             {
-                _logger?.LogError(e.ToString());
-                return null;
+                _logger.LogError(string.Format("databases get connection failed:{0}", e.ToString()));               
             }
+            return null;
         }
         
     }
