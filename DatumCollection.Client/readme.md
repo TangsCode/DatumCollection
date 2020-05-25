@@ -11,7 +11,7 @@
         new SpiderHostBuilderFactory().CreateDefaultBuilder(args).UseStartUp<Startup>();
 ~~~
 
-You can contruct your own <code>Startup</code> by inheritating from interface <code>IStartup</code>,
+You can construct your own <code>Startup</code> by inheritating from interface <code>IStartup</code>,
 implementing member <code>IServiceProvider ConfigureServices(IServiceCollection services)</code> and inject dependencies you require.
 
 ### Spider client configuration
