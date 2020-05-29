@@ -43,9 +43,19 @@ namespace DatumCollection.Configuration
         #endregion
 
         #region kafka setting 
-        public virtual string KafkaBootstrapServers => _configuration["KafkaBootstrapServers"];
+        private IConfigurationSection _kafka => _configuration.GetSection("kafka");
 
-        public virtual string KafkaConsumerGroup => _configuration["KafkaConsumerGroup"];
+        public virtual string KafkaBootstrapServers => _kafka.GetSection("bootstrapServers")?.Value;
+
+        public virtual string KafkaConsumerGroup => _kafka.GetSection("consumerGroup")?.Value;
+        #endregion
+
+        #region RabbitMQ setting
+        private IConfigurationSection _rabbitMQ => _configuration.GetSection("rabbitMQ");
+
+        public virtual string RabbitMQExchange => _rabbitMQ.GetSection("exchange")?.Value;
+
+        public virtual string RabbitMQQueue => _rabbitMQ.GetSection("queue")?.Value;
         #endregion
 
         #region webdriver setting

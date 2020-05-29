@@ -1,5 +1,6 @@
 ﻿using DatumCollection.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -20,7 +21,9 @@ namespace DatumCollection.MessageQueue.RabbitMQ
 
         IConnection _connection;
 
-        private IBasicConsumer _consumer;
+        private EventingBasicConsumer _consumer;
+
+        private IModel _channel;
 
         public RabbitMessageQueue(
             ILogger<RabbitMessageQueue> logger,
@@ -32,52 +35,54 @@ namespace DatumCollection.MessageQueue.RabbitMQ
 
             var factory = new ConnectionFactory() { HostName = "" };
             _connection = factory.CreateConnection();
+            _channel = _connection.CreateModel();
+            _consumer = new EventingBasicConsumer(_channel);
+            _channel.ExchangeDeclare(exchange: _config.RabbitMQExchange, type: ExchangeType.Fanout);
         }
+
         public Task PublishAysnc(string topic, Message message)
         {
-            using (var channel = _connection.CreateModel())
-            {
-                try
-                {
-                    channel.ExchangeDeclare(exchange: "logs", type: ExchangeType.Fanout);
-                    var body = Encoding.UTF8.GetBytes("");
-                    channel.BasicPublish(exchange: "", routingKey: "", basicProperties: null, body: body);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError("message produce error:{0}", e.ToString());
-                }                
+            try
+            {                
+                var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
+                _channel.BasicPublish(exchange: _config.RabbitMQExchange, routingKey: topic, basicProperties: null, body: body);
             }
-            
+            catch (Exception e)
+            {
+                _logger.LogError("message produce error:{0}", e.ToString());
+            }
+
             return Task.CompletedTask;
         }
 
         public void Subscribe(string topic, Action<Message> consume)
         {
-            using (var channel = _connection.CreateModel())
+            try
             {
-                channel.ExchangeDeclare(exchange: "", type: ExchangeType.Fanout);
+                var queueName = _config.RabbitMQQueue + topic;
+                _channel.QueueBind(queue: queueName,
+                                  exchange: _config.RabbitMQExchange,
+                                  routingKey: topic);                
 
-                var queueName = channel.QueueDeclare().QueueName;
-                channel.QueueBind(queue: queueName,
-                                  exchange: "logs",
-                                  routingKey: "");
-
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (model, ea) =>
+                _consumer.Received += (model, ea) =>
                 {
                     var body = ea.Body;
-                    var message = Encoding.UTF8.GetString(body.ToArray());
+                    var message = JsonConvert.DeserializeObject<Message>(Encoding.UTF8.GetString(body.ToArray()));
+                    consume(message);
                 };
-                channel.BasicConsume(queue: queueName,
+                _channel.BasicConsume(queue: queueName,
                                      autoAck: true,
-                                     consumer: consumer);
+                                     consumer: _consumer);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("message consume error:{0}", e.ToString());
             }
         }
 
         public void Unsubscribe(string topic)
         {
-            
+            _channel.ExchangeUnbind(_config.RabbitMQExchange, _config.RabbitMQExchange, topic);
         }
     }
 }
