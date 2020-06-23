@@ -1,11 +1,24 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Downloader\" />
+    <Compile Remove="Downloader\**" />
+    <EmbeddedResource Remove="Downloader\**" />
+    <None Remove="Downloader\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\DatumCollection.Configuration\DatumCollection.Configuration.csproj" />
+    <ProjectReference Include="..\DatumCollection.Infrastructure\DatumCollection.Infrastructure.csproj" />
+    <ProjectReference Include="..\DatumCollection.MessageQueue\DatumCollection.MessageQueue.csproj" />
   </ItemGroup>
 
 </Project>
