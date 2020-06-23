@@ -22,8 +22,18 @@ namespace DatumCollection.Configuration
         #region host configuration
         IConfigurationSection _host => _configuration.GetSection("spiderHost");
 
+        public virtual string SpiderHostStartupAssembly => _host.GetSection("startupAssembly").Value;
+
+        public virtual string SpiderHostStartupType => _host.GetSection("startupType").Value;
+
         public virtual int SpiderHostTimeout => int.Parse(_host.GetSection("timeout").Value);
 
+        #endregion
+
+        #region schedule
+        IConfigurationSection _schedule => _configuration.GetSection("schedule");
+
+        public virtual int ScheduleQueryFrequency => int.Parse(_schedule.GetSection("queryFrequency").Value);
         #endregion
 
         #region hardware resources restraint
@@ -56,6 +66,15 @@ namespace DatumCollection.Configuration
         public virtual string RabbitMQExchange => _rabbitMQ.GetSection("exchange")?.Value;
 
         public virtual string RabbitMQQueue => _rabbitMQ.GetSection("queue")?.Value;
+        #endregion
+
+        #region message queue topic
+        private IConfigurationSection _topic => _configuration.GetSection("topic");
+
+        public string TopicStatisticsFail =>  _topic.GetSection("statisticsFail")?.Value;
+
+        public string TopicStatisticsSuccess => _topic.GetSection("statisticsSuccess")?.Value;
+
         #endregion
 
         #region webdriver setting
