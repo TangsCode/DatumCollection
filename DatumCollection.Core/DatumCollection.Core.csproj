@@ -3,24 +3,40 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>false</SignAssembly>
-    <Description>数据采集核心类库；
-包含框架基础设施，注入的服务，启动项等；</Description>
+    <Description>DatumCollection.Core is the core library for spider, including spider hosting, pipline middleware integration, dependency injection of services</Description>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright (c) 2020 TangsCode</Copyright>
+    <PackageLicenseUrl>https://github.com/TangsCode/DatumCollection/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/TangsCode/DatumCollection</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TangsCode/DatumCollection.git</RepositoryUrl>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>   
     <PackageReference Include="microsoft.extensions.dependencyinjection" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.EventSource" version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" version="2.0.0" />    
     <PackageReference Include="Serilog" Version="2.3.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="2.0.0" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="2.0.0" />
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="4.6.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DatumCollection.Data\DatumCollection.Data.csproj" />
+    <ProjectReference Include="..\DatumCollection.HostedServices\DatumCollection.HostedServices.csproj" />
+    <ProjectReference Include="..\DatumCollection.Infrastructure\DatumCollection.Infrastructure.csproj" />
     <ProjectReference Include="..\DatumCollection.MessageQueue\DatumCollection.MessageQueue.csproj" />
+    <ProjectReference Include="..\DatumCollection.Pipline\DatumCollection.Pipline.csproj" />
     <ProjectReference Include="..\DatumCollection.Utility\DatumCollection.Utility.csproj" />
   </ItemGroup>
 

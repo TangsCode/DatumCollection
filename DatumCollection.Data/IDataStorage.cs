@@ -30,6 +30,15 @@ namespace DatumCollection.Data
         /// <returns></returns>
         Task<IEnumerable<T>> Query<T>(DataStorageContext context);
 
+        /// <summary>
+        /// 查询数据
+        /// 根据实体<typeparamref name="T"/>查询,反射获取架构和字段信息
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> Query<T>() where T : class;
+
         IDbConnection GetConnection();
     }
 }

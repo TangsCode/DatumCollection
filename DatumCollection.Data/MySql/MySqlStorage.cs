@@ -142,6 +142,10 @@ namespace DatumCollection.Data.MySql
             }
             return null;
         }
-        
+
+        public Task<IEnumerable<T>> Query<T>() where T : class
+        {
+            throw new NotImplementedException();
+        }
     }
 }
