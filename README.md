@@ -1,13 +1,15 @@
 DatumCollection
 ==========
+[![GitHub issues](https://img.shields.io/github/issues/TangsCode/DatumCollection)](https://github.com/TangsCode/DatumCollection/issues)
+[![GitHub stars](https://img.shields.io/github/stars/TangsCode/DatumCollection)](https://github.com/TangsCode/DatumCollection/stargazers)
+[![GitHub license](https://img.shields.io/github/license/TangsCode/DatumCollection)](https://github.com/TangsCode/DatumCollection/blob/master/LICENSE)
 
 DatumCollection is a platform for web spider,this repository contains source code of spider client and spider host.
 
 DatumCollection Core
 --------------------
-
 [![latest version](https://img.shields.io/nuget/v/DatumCollection.Core)](https://www.nuget.org/packages/DatumCollection.Core) 
-[![preview version](https://img.shields.io/nuget/vpre/DatumCollection.Core)](https://www.nuget.org/packages/DatumCollection.Core/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/DatumCollection.Core)](https://www.nuget.org/packages/DatumCollection.Core)
+[![downloads](https://img.shields.io/nuget/dt/DatumCollection.Core)](https://www.nuget.org/packages/DatumCollection.Core)
 
 DatumCollection.Core is the core library for spider, including spider hosting, pipline middleware integration, dependency injection of services, etc.
 
