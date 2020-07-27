@@ -40,7 +40,13 @@ namespace DatumCollection.MessageQueue.Kafka
             _consumer = new ConsumerBuilder<string, string>(consumerConfig).Build();
         }
 
-        public Task PublishAysnc(string topic, Message message)
+        public void Dispose()
+        {
+            _producer?.Dispose();
+            _consumer?.Dispose();
+        }
+
+        public Task PublishAsync(string topic, Message message)
         {
             try
             {

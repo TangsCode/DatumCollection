@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 
 namespace DatumCollection.MessageQueue
@@ -23,6 +24,12 @@ namespace DatumCollection.MessageQueue
         /// <summary>
         /// 消息发布时间
         /// </summary>
-        public DateTime PublishTime { get; set; }
+        public long PublishTime { get; set; }
+    }
+
+    public enum MessageType
+    {
+        [Description("爬虫请求")]
+        SpiderRequest,
     }
 }

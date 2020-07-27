@@ -8,7 +8,7 @@ namespace DatumCollection.MessageQueue
     /// <summary>
     /// 消息队列接口
     /// </summary>
-    public interface IMessageQueue
+    public interface IMessageQueue : IDisposable
     {
         /// <summary>
         /// 推送消息到指定topic
@@ -16,7 +16,7 @@ namespace DatumCollection.MessageQueue
         /// <param name="topic"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task PublishAysnc(string topic, Message message);
+        Task PublishAsync(string topic, Message message);
 
         /// <summary>
         /// 订阅消息并消费

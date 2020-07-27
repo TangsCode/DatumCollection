@@ -40,7 +40,12 @@ namespace DatumCollection.MessageQueue.RabbitMQ
             _channel.ExchangeDeclare(exchange: _config.RabbitMQExchange, type: ExchangeType.Fanout);
         }
 
-        public Task PublishAysnc(string topic, Message message)
+        public void Dispose()
+        {
+            _channel?.Dispose();            
+        }
+
+        public Task PublishAsync(string topic, Message message)
         {
             try
             {                
