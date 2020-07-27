@@ -11,9 +11,7 @@ namespace DatumCollection.Data
     public class DataStorageContext
     {
         public DataStorageContext()
-        {
-            Parameters = new List<object>().ToArray();            
-            UseQueryString = false;
+        {                
         }
         /// <summary>
         /// 操作类型
@@ -22,21 +20,11 @@ namespace DatumCollection.Data
         
         public Table MainTable { get; set; } 
 
-        public object[] Parameters { get; set; }
+        public object Parameters { get; set; }
 
-        public string QueryString {
-            get
-            {
-                return QueryString;
-            }
-            set
-            {
-                if (!string.IsNullOrEmpty(QueryString)) { UseQueryString = true; }
-                QueryString = value;
-            }
-        }
+        public string SqlStatement { get; set; }
 
-        public bool UseQueryString { get; set; }
+        public bool UseSqlStatement { get { return !string.IsNullOrEmpty(SqlStatement); } }
     }
 
     public enum Operation

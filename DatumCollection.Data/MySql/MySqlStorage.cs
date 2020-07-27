@@ -57,9 +57,9 @@ namespace DatumCollection.Data.MySql
                             {
                                 //if @parameters does not contain primary key column, insert data
                                 //else update data contained in @parameters by primary key
-                                if (context.Parameters[0]?.GetType()
+                                if (context.Parameters?.GetType()
                                     ?.GetProperty(context.MainTable.Columns.FirstOrDefault(c => c.IsPrimaryKey).Name)
-                                    ?.GetValue(context.Parameters[0], null) != null)
+                                    ?.GetValue(context.Parameters, null) != null)
                                 {
                                     sql = $@"update {context.MainTable.Schema.TableName} set
                                             {string.Join(",", context.MainTable.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
@@ -87,7 +87,7 @@ namespace DatumCollection.Data.MySql
                             break;
                         case Operation.Query:
                             {
-                                sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters[0]?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
+                                sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
                             }
                             break;
                         default:
@@ -106,6 +106,11 @@ namespace DatumCollection.Data.MySql
             return result;
         }
 
+        public Task<T> ExecuteScalarAsync<T>(DataStorageContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IEnumerable<T>> Query<T>(DataStorageContext context)
         {
             IDbConnection conn = GetConnection();
@@ -115,8 +120,8 @@ namespace DatumCollection.Data.MySql
                 IEnumerable<T> result = null;
                 try
                 {
-                    string sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters[0]?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
-                    if (context.UseQueryString) { sql = context.QueryString; }
+                    string sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
+                    if (context.UseSqlStatement) { sql = context.SqlStatement; }
                     result = await conn.QueryAsync<T>(sql, context.Parameters, transaction);
                 }
                 catch (Exception e)
@@ -126,6 +131,16 @@ namespace DatumCollection.Data.MySql
                 }
                 return result;
             }
+        }
+
+        public Task<IEnumerable<T>> Query<T>() where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<T>> Query<T>(Func<T, bool> condition) where T : class
+        {
+            throw new NotImplementedException();
         }
 
         public IDbConnection GetConnection()
@@ -143,7 +158,7 @@ namespace DatumCollection.Data.MySql
             return null;
         }
 
-        public Task<IEnumerable<T>> Query<T>() where T : class
+        public bool IsDatabaseObjectExists(string name)
         {
             throw new NotImplementedException();
         }

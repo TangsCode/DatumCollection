@@ -132,6 +132,10 @@ namespace DatumCollection.Configuration
         /// </summary>
         public virtual string ConnectionString => _storage.GetSection("connectionString").Value;
 
+        /// <summary>
+        /// 确保数据库对象存在
+        /// </summary>
+        public virtual bool EnsureDatabaseObject => bool.Parse(_storage.GetSection("ensureDatabaseObject").Value);
         #endregion
 
         #region Email setting

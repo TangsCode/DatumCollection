@@ -10,9 +10,9 @@ namespace DatumCollection.Data.Attributes
     {
         public string Name { get; set; }
 
-        public string Type { get; set; }
+        public string Type { get; set; } = "nvarchar";
 
-        public int Length { get; set; } = 255;
+        public int Length { get; set; } = 200;
 
         public bool Required { get; set; }
 

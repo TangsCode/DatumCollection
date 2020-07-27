@@ -13,13 +13,19 @@ namespace DatumCollection.Data.Attributes
         public string DataBase { get; set; }
 
         /// <summary>
+        /// 架构
+        /// </summary>
+        public string Schema { get; set; }
+
+        /// <summary>
         /// 表名
         /// </summary>
         public string TableName { get; set; }
 
-        public SchemaAttribute(string table, string database = null)
+        public SchemaAttribute(string table, string schema = null, string database = null)
         { 
             DataBase = database;
+            Schema = schema ?? "dbo";
             TableName = table;
         }
     }
