@@ -1,10 +1,11 @@
 ﻿using DatumCollection.Infrastructure.Web;
+using DatumCollection.Data.Entities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DatumCollection.Infrastructure.Spider;
 
-namespace DatumCollection.Infrastructure.Spider
+namespace DatumCollection.Core.Spider
 {
     public class SpiderContext
     {
@@ -17,8 +18,7 @@ namespace DatumCollection.Infrastructure.Spider
         public HashSet<SpiderAtom> SpiderAtoms { get; set; }        
 
         public SpiderContext()
-        {
-            SpiderAtoms = new HashSet<SpiderAtom>();
+        {            
         }
     }
 

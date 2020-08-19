@@ -23,7 +23,7 @@ namespace DatumCollection.Core.Hosting
         //服务集合
         private readonly ServiceCollection _services;
 
-        private IServiceProvider _provider;
+        //private IServiceProvider _provider;
 
         //服务注入操作集合
         private ICollection<Action<IServiceCollection>> _configureServiceActions = 
@@ -72,7 +72,7 @@ namespace DatumCollection.Core.Hosting
                             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                             .Enrich.FromLogContext()
                             .WriteTo.Console()
-                            .WriteTo.RollingFile($"{AppDomain.CurrentDomain.BaseDirectory}/logs/system.log");
+                            .WriteTo.RollingFile($"{SpiderEnvironment.SpiderDoucmentsPath}/logs/system.log");
             Log.Logger = loggerConfig.CreateLogger();
 
             _services.AddLogging(configure);
@@ -147,13 +147,21 @@ namespace DatumCollection.Core.Hosting
         {
             hostingStartupErrors = null;
 
-            var _services = new ServiceCollection();
+            //application configuration
+            ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+            foreach (var configure in _configureAppConfigActions)
+            {
+                configure?.Invoke(configurationBuilder);
+            }
+            _configuration = configurationBuilder.Build();
+
+            //var _services = new ServiceCollection();
             _services.AddSingleton(_ => _configuration);
             _services.AddSingleton<SpiderClientConfiguration>();
             _services.AddTransient<IApplicationBuilderFactory, ApplicationBuilderFactory>();
             _services.AddOptions();
             _services.AddLogging();
-                         
+
             //startup assembly configured in json file
             if (!string.IsNullOrEmpty(_config.SpiderHostStartupAssembly))
             {

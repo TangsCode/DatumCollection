@@ -9,6 +9,7 @@ using DatumCollection.Infrastructure.Spider;
 using DatumCollection.Configuration;
 using DatumCollection.Infrastructure.Abstraction;
 using System.Linq;
+using DatumCollection.Utility.Helper;
 
 namespace DatumCollection.Core.Middleware
 {
@@ -38,22 +39,22 @@ namespace DatumCollection.Core.Middleware
             _mq = mq;
         }
 
-        public async Task InvokeAysnc(SpiderContext context)
+        public async Task InvokeAsync(SpiderContext context)
         {
             try
             {
-                Parallel.ForEach(context.HttpRequests, async request =>
+                Parallel.ForEach(context.SpiderAtoms, async atom =>
                 {
-                    var response = await _collector.CollectAsync(request);
-                    context.HttpResponses.Append(response);
+                    atom.Response = await _collector.CollectAsync(atom.Request);                    
                 });
+                _logger.LogInformation("{middleware} process {count} atoms completed.", nameof(CollectorMiddlware), context.SpiderAtoms.Count);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "error occured in {middleware}", nameof(CollectorMiddlware));
-                await _mq.PublishAysnc(_config.TopicStatisticsFail, new Message {
+                await _mq.PublishAsync(_config.TopicStatisticsFail, new Message {
                     Data = $"task {context.Task.Id} error occurred in {e.StackTrace} => {e.Message}",
-                    PublishTime = DateTime.Now
+                    PublishTime = (long)DateTimeHelper.GetCurrentUnixTimeNumber()
                 });
             }
 

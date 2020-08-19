@@ -60,7 +60,7 @@ namespace DatumCollection.Core.Builder
                 }
 
                 var methodInfo = invokeMethods[0];
-                if (typeof(Task).IsAssignableFrom(methodInfo.ReturnType))
+                if (!typeof(Task).IsAssignableFrom(methodInfo.ReturnType))
                 {
                     throw new InvalidOperationException("Invoke method return type is wrong");
                 }
@@ -143,7 +143,7 @@ namespace DatumCollection.Core.Builder
             {
                 return async context =>
                 {
-                    var middlewareFactory = (IMiddlewareFactory)context.Services.GetService(typeof(IMiddlewareFactory));
+                    var middlewareFactory = (IMiddlewareFactory)context.Services?.GetService(typeof(IMiddlewareFactory));
                     if (middlewareFactory == null)
                     {
                         throw new InvalidOperationException("no middleare factory");

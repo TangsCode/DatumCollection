@@ -14,6 +14,7 @@ namespace DatumCollection.Pipline.Collectors
 {
     /// <summary>
     /// default collector using http client
+    /// not adapted to asynchronous web pages
     /// </summary>
     public class DefaultCollector : ICollector
     {
@@ -31,7 +32,7 @@ namespace DatumCollection.Pipline.Collectors
             _config = config;
         }
 
-        public Task<HttpResponse> CollectAsync(HttpRequest request)
+        public async Task<HttpResponse> CollectAsync(HttpRequest request)
         {
             WebResponse response = null;
             var httpResponse = new HttpResponse{ ContentType = request.ContentType };
@@ -39,11 +40,10 @@ namespace DatumCollection.Pipline.Collectors
             {                
                 HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(request.Url);
                 webRequest.Method = request.Method;
-                response = webRequest.GetResponse();
+                response = await webRequest.GetResponseAsync();
                 string stremReader = new StreamReader(response.GetResponseStream(), request.Encoding).ReadToEnd();
                 httpResponse.Content = stremReader;
                 httpResponse.Success = ((HttpWebResponse)response).StatusCode == HttpStatusCode.OK;
-                return Task.FromResult(httpResponse);
             }
             catch (Exception e)
             {
@@ -55,7 +55,12 @@ namespace DatumCollection.Pipline.Collectors
             {
                 response?.Close();
             }
-            return Task.FromResult(httpResponse);
+            return httpResponse;
+        }
+
+        public void Dispose()
+        {
+            
         }
     }
 }

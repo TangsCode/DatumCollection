@@ -18,7 +18,7 @@ namespace DatumCollection.Data
         /// </summary>
         public Operation Operation { get; set; }
         
-        public Table MainTable { get; set; } 
+        public DatabaseMetadata Metadata { get; set; } 
 
         public object Parameters { get; set; }
 

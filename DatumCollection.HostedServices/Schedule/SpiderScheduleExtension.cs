@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DatumCollection.Data.Entities;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +9,7 @@ namespace DatumCollection.HostedServices.Schedule
     {
         public static bool OnSchedule(this SpiderScheduleSetting schedule)
         {
-            if(!schedule.IsEnabled || DateTime.Now < schedule.StartDate || DateTime.Now > schedule.EndDate)
+            if(schedule == null || !schedule.IsEnabled || DateTime.Now < schedule.StartDate || DateTime.Now > schedule.EndDate)
             {
                 return false;
             }

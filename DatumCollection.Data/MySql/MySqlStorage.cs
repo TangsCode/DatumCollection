@@ -47,9 +47,9 @@ namespace DatumCollection.Data.MySql
                     {
                         case Operation.Insert:
                             {
-                                sql = $@"insert into {context.MainTable.Schema.TableName}
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => c.Name).ToArray())}) values
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => "@" + c.Name).ToArray())})";
+                                sql = $@"insert into {context.Metadata.Schema.TableName}
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => c.Name).ToArray())}) values
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => "@" + c.Name).ToArray())})";
 
                             }
                             break;
@@ -58,36 +58,36 @@ namespace DatumCollection.Data.MySql
                                 //if @parameters does not contain primary key column, insert data
                                 //else update data contained in @parameters by primary key
                                 if (context.Parameters?.GetType()
-                                    ?.GetProperty(context.MainTable.Columns.FirstOrDefault(c => c.IsPrimaryKey).Name)
+                                    ?.GetProperty(context.Metadata.Columns.FirstOrDefault(c => c.IsPrimaryKey).Name)
                                     ?.GetValue(context.Parameters, null) != null)
                                 {
-                                    sql = $@"update {context.MainTable.Schema.TableName} set
-                                            {string.Join(",", context.MainTable.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
-                                            where {string.Join(" and ", context.MainTable.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
+                                    sql = $@"update {context.Metadata.Schema.TableName} set
+                                            {string.Join(",", context.Metadata.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
+                                            where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                                 }
                                 else
                                 {
-                                    sql = $@"insert into {context.MainTable.Schema.TableName}
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => c.Name).ToArray())}) values
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => "@" + c.Name).ToArray())})";
+                                    sql = $@"insert into {context.Metadata.Schema.TableName}
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => c.Name).ToArray())}) values
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => "@" + c.Name).ToArray())})";
                                 }
                             }
                             break;
                         case Operation.Update:
                             {
-                                sql = $@"update {context.MainTable.Schema.TableName} set
-                                            {string.Join(",", context.MainTable.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
-                                            where {string.Join(" and ", context.MainTable.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
+                                sql = $@"update {context.Metadata.Schema.TableName} set
+                                            {string.Join(",", context.Metadata.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
+                                            where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                             }
                             break;
                         case Operation.Delete:
                             {
-                                sql = $@"delete from {context.MainTable.Schema.TableName} where {string.Join(" and ", context.MainTable.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
+                                sql = $@"delete from {context.Metadata.Schema.TableName} where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                             }
                             break;
                         case Operation.Query:
                             {
-                                sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
+                                sql = $@"select * from {context.Metadata.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
                             }
                             break;
                         default:
@@ -120,7 +120,7 @@ namespace DatumCollection.Data.MySql
                 IEnumerable<T> result = null;
                 try
                 {
-                    string sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
+                    string sql = $@"select * from {context.Metadata.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
                     if (context.UseSqlStatement) { sql = context.SqlStatement; }
                     result = await conn.QueryAsync<T>(sql, context.Parameters, transaction);
                 }
@@ -159,6 +159,16 @@ namespace DatumCollection.Data.MySql
         }
 
         public bool IsDatabaseObjectExists(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<TFirst>> Query<TFirst, TSecond>(Func<TFirst, TSecond, TFirst> map, Func<TFirst, bool> condition = null) where TFirst : class where TSecond: class
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DbExecutionResult> Insert<T>(IEnumerable<T> entity)
         {
             throw new NotImplementedException();
         }

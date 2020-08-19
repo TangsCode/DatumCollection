@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using DatumCollection.Core.Builder;
+using DatumCollection.Data.Entities;
 
 namespace DatumCollection.Core.Hosting
 {
@@ -39,11 +40,13 @@ namespace DatumCollection.Core.Hosting
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddMessageQueue(b => b.UseKafka());
+            services.AddMessageQueue();
             services.AddDataStorage(
                 (c) => c.UseSqlServer());
-            services.AddSpiderCollector(c => c.UseWebDriver());
-            services.AddSpiderHostedService();
+            services.AddSpiderCollector(
+                b => b.UseWebDriver());
+            services.AddSpiderExtractor();
+            services.AddSpider<ElectronicCommerceWebsite>();
 
             return services.BuildServiceProvider();            
         }

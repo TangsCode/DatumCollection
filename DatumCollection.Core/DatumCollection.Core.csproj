@@ -46,4 +46,9 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pipline\" />
+    <Folder Include="Spider\" />
+  </ItemGroup>
+
 </Project>

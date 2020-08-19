@@ -15,16 +15,19 @@ using DatumCollection.Infrastructure.Abstraction;
 using DatumCollection.Pipline.Collector;
 using DatumCollection.Pipline.Collectors;
 using DatumCollection.HostedServices.Schedule;
+using DatumCollection.MessageQueue.EventBus;
+using DatumCollection.Pipline.Extractors;
+using DatumCollection.Infrastructure.Spider;
 
 namespace DatumCollection.Core
 {
     public static class ServiceCollectionExtension
     {
-        #region Message Queue (supporting Kafka,RabbitMQ & EventBus)
+        #region Message Queue (supporting Kafka,RabbitMQ & EventBus(default))
         public static IServiceCollection AddMessageQueue(this IServiceCollection services, 
             Action<MessageQueueServiceBuilder> action = null)
         {
-            services.AddSingleton<IMessageQueue, KafkaMessageQueue>();
+            services.AddSingleton<IMessageQueue, EventBusMQ>();
             var builder = new MessageQueueServiceBuilder(services);
             action?.Invoke(builder);
 
@@ -69,10 +72,10 @@ namespace DatumCollection.Core
         }
         #endregion
 
-        #region Hosted Service
-        public static IServiceCollection AddSpiderHostedService(this IServiceCollection services)
+        #region Specified spider type(shcekoing schedule and run as hosted serice)
+        public static IServiceCollection AddSpider<T>(this IServiceCollection services) where T: ISpider
         {
-            services.AddHostedService<SpiderScheduleHostedService>();
+            services.AddHostedService<SpiderScheduleHostedService<T>>();
             return services;
         }
         #endregion
@@ -95,6 +98,17 @@ namespace DatumCollection.Core
         }
         #endregion
 
+        #region Spider Extractor
+        public static IServiceCollection AddSpiderExtractor(this IServiceCollection services,
+            Action<PiplineServiceBuilder> action = null)
+        {
+            services.AddSingleton<IExtractor, DefaultExtractor>();
+            var builder = new PiplineServiceBuilder(services);
+            action?.Invoke(builder);
+
+            return services;
+        }
+        #endregion
         public static IServiceCollection Clone(this IServiceCollection services)
         {
             IServiceCollection clone = new ServiceCollection();

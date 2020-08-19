@@ -14,6 +14,10 @@ namespace DatumCollection.Data.Attributes
 
         public int Length { get; set; } = 200;
 
+        public int Precision { get; set; }
+
+        public int Scale { get; set; }
+
         public bool Required { get; set; }
 
         public bool IsPrimaryKey { get; set; } = false;

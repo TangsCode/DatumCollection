@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,8 @@ namespace DatumCollection.Pipline.Collector
 
         private IWebDriver driver;
         private ConcurrentBag<IWebDriver> drivers;
+        private DriverService _driverService;
+        private DriverOptions _driverOptions;
 
         private Browser _browser;
 
@@ -53,28 +56,33 @@ namespace DatumCollection.Pipline.Collector
                 Directory.CreateDirectory(ImagePath);
             }
             drivers = new ConcurrentBag<IWebDriver>();
-            _browser = (Browser)Enum.Parse(typeof(Browser), _config.Browser ?? Browser.Chrome.ToString());
+            _browser = (Browser)Enum.Parse(typeof(Browser), _config.Browser ?? Browser.Chrome.ToString(), true);
             switch (_browser)
             {
                 case Browser.Chrome:
                     {
-                        ChromeDriverService chromeService = ChromeDriverService.CreateDefaultService(WebDriverExePath);
+                        _driverService = ChromeDriverService.CreateDefaultService(WebDriverExePath);
                         //disable command prompt output
-                        chromeService.HideCommandPromptWindow = true;
-                        chromeService.SuppressInitialDiagnosticInformation = true;
-                        ChromeOptions chromeOptions = new ChromeOptions();
+                        _driverService.HideCommandPromptWindow = true;
+                        _driverService.SuppressInitialDiagnosticInformation = true;
+                        var chromeOptions = new ChromeOptions();
                         #region proxy setting
                         //Proxy proxy = new Proxy();
                         //proxy.Kind = ProxyKind.Manual;
                         #endregion
                         chromeOptions.AddArguments(new[] { "disable-infobars", "headless", "silent", "log-level=3", "no-sandbox", "disable-dev-shm-usage" });
-                        driver = new ChromeDriver(chromeService, chromeOptions, TimeSpan.FromSeconds(60));
-                        driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);
-                        for (int i = 0; i < _config.WebDriverProcessCount; i++)
+                        _driverOptions = chromeOptions;
+                        //driver = new ChromeDriver(chromeService, chromeOptions, TimeSpan.FromSeconds(60));
+                        //driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);
+                        Task.Factory.StartNew(() =>
                         {
-                            var webdriver = new ChromeDriver(chromeService, chromeOptions, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));
-                            drivers.Add(webdriver);
-                        }
+                            while (drivers.Count < _config.WebDriverProcessCount)
+                            {
+                                var webdriver = new ChromeDriver((ChromeDriverService)_driverService, chromeOptions, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));
+                                drivers.Add(webdriver);
+                                _logger.LogDebug("just added a new web driver, now drivers count {count}", drivers.Count);
+                            }
+                        });
                         break;
                     }
                 case Browser.Firefox:
@@ -115,18 +123,31 @@ namespace DatumCollection.Pipline.Collector
             }
         }
         
-        public Task<HttpResponse> CollectAsync(HttpRequest request)
+        private Task<IWebDriver> GetWebDriverInstance()
+        {
+            IWebDriver driver = drivers.FirstOrDefault();
+            while (driver == null)
+            {
+                Task.Delay(10000).Wait();
+                _logger.LogInformation("wating one second to get web driver instance");
+                driver = drivers.FirstOrDefault();
+            }            
+
+            return Task.FromResult(driver);            
+        }
+
+        public async Task<HttpResponse> CollectAsync(HttpRequest request)
         {
             HttpResponse response = new HttpResponse { Success = true };
             try
             {
-                var webDriver = drivers.FirstOrDefault();
+                var webDriver = await GetWebDriverInstance();
                 webDriver.Navigate().GoToUrl(request.Url);
                 WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));
                 wait.Until(driver =>
                     ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
                 response.Content = webDriver.PageSource;
-                response.ContentType = ContentType.Html;                
+                response.ContentType = request.ContentType;
             }
             catch (Exception e)
             {
@@ -135,8 +156,23 @@ namespace DatumCollection.Pipline.Collector
                 response.ErrorMsg = e.Message;                
             }
 
-            return Task.FromResult(response);
+            return response;
         }
-        
+
+        public void Dispose()
+        {
+            foreach (var driver in drivers)
+            {                
+                driver.Quit();
+                driver.Dispose();
+            }
+
+            _driverService?.Dispose();
+
+            foreach (var process in Process.GetProcessesByName("chromedriver"))
+            {
+                process.Kill();
+            }
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace DatumCollection.Infrastructure.Web
         public string Method { get; set; }
 
         public ContentType ContentType { get; set; }
+
+        public Encoding Encoding { get; set; }
         
     }
 }

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DatumCollection.Data\DatumCollection.Data.csproj" />
+    <ProjectReference Include="..\DatumCollection.Infrastructure\DatumCollection.Infrastructure.csproj" />
     <ProjectReference Include="..\DatumCollection.MessageQueue\DatumCollection.MessageQueue.csproj" />
   </ItemGroup>
 

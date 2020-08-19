@@ -9,6 +9,7 @@ using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
 using DatumCollection.Data.Attributes;
+using System.Reflection;
 
 namespace DatumCollection.Data.SqlServer
 {
@@ -53,9 +54,9 @@ namespace DatumCollection.Data.SqlServer
                         {
                             case Operation.Insert:
                                 {
-                                    sql = $@"insert into {context.MainTable.Schema.TableName}
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => c.Name).ToArray())}) values
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => "@" + c.Name).ToArray())})";
+                                    sql = $@"insert into {context.Metadata.Schema.TableName}
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => c.Name).ToArray())}) values
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => "@" + c.Name).ToArray())})";
 
                                 }
                                 break;
@@ -64,36 +65,36 @@ namespace DatumCollection.Data.SqlServer
                                     //if @parameters does not contain primary key column, insert data
                                     //else update data contained in @parameters by primary key
                                     if (context.Parameters?.GetType()
-                                        ?.GetProperty(context.MainTable.Columns.FirstOrDefault(c => c.IsPrimaryKey).Name)
+                                        ?.GetProperty(context.Metadata.Columns.FirstOrDefault(c => c.IsPrimaryKey).Name)
                                         ?.GetValue(context.Parameters, null) != null)
                                     {
-                                        sql = $@"update {context.MainTable.Schema.TableName} set
-                                            {string.Join(",", context.MainTable.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
-                                            where {string.Join(" and ", context.MainTable.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
+                                        sql = $@"update {context.Metadata.Schema.TableName} set
+                                            {string.Join(",", context.Metadata.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
+                                            where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                                     }
                                     else
                                     {
-                                        sql = $@"insert into {context.MainTable.Schema.TableName}
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => c.Name).ToArray())}) values
-                                            ({string.Join(",", context.MainTable.Columns.Select(c => "@" + c.Name).ToArray())})";
+                                        sql = $@"insert into {context.Metadata.Schema.TableName}
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => c.Name).ToArray())}) values
+                                            ({string.Join(",", context.Metadata.Columns.Select(c => "@" + c.Name).ToArray())})";
                                     }
                                 }
                                 break;
                             case Operation.Update:
                                 {
-                                    sql = $@"update {context.MainTable.Schema.TableName} set
-                                            {string.Join(",", context.MainTable.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
-                                            where {string.Join(" and ", context.MainTable.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
+                                    sql = $@"update {context.Metadata.Schema.TableName} set
+                                            {string.Join(",", context.Metadata.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
+                                            where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                                 }
                                 break;
                             case Operation.Delete:
                                 {
-                                    sql = $@"delete from {context.MainTable.Schema.TableName} where {string.Join(" and ", context.MainTable.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
+                                    sql = $@"delete from {context.Metadata.Schema.TableName} where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                                 }
                                 break;
                             case Operation.Query:
                                 {
-                                    sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
+                                    sql = $@"select * from {context.Metadata.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
                                 }
                                 break;
                             default:
@@ -146,7 +147,7 @@ namespace DatumCollection.Data.SqlServer
                 IEnumerable<T> result = null;
                 try
                 {
-                    string sql = $@"select * from {context.MainTable.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
+                    string sql = $@"select * from {context.Metadata.Schema.TableName} where {string.Join(",", context.Parameters?.GetType().GetProperties().Select(p => p.Name + "=@" + p.Name).ToArray())}";
                     if (context.UseSqlStatement) { sql = context.SqlStatement; }
                     result = await conn.QueryAsync<T>(sql, context.Parameters, transaction);                    
                 }
@@ -173,33 +174,43 @@ namespace DatumCollection.Data.SqlServer
                 return null;
             }
         }
-        
-        //public async Task<IEnumerable<TFirst>> Query<TFirst,TSecond,TThird>(
-        //    Func<TFirst,TSecond,TThird,TFirst> map,
-        //    Func<TFirst,bool> condition) where TFirst: class
-        //{
-        //    var metadata = await GetMetaData<TFirst>();
-        //    IDbConnection conn = GetConnection();
-        //    using (conn)
-        //    {
-        //        IDbTransaction transaction = null;
-        //        IEnumerable<TFirst> result = null;
-        //        try
-        //        {
-        //            transaction = conn.BeginTransaction();
-        //            string sql = $@"select {string.Join(",", metadata.Columns.Select(p => p.Name).ToArray())} from {metadata.Schema.TableName} ";
-        //            result = await conn.QueryAsync(sql, map, transaction: transaction);
-        //            result = result.Where(d => condition(d));
-        //            //transaction?.Commit();
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            _logger?.LogError(e.ToString());
-        //            transaction?.Rollback();
-        //        }
-        //        return result;
-        //    }
-        //}
+
+        public async Task<IEnumerable<TFirst>> Query<TFirst, TSecond>(
+            Func<TFirst, TSecond, TFirst> map,
+            Func<TFirst, bool> condition = null) where TFirst : class where TSecond: class
+        {
+            var metadata = await GetMetaData<TFirst>();            
+            IDbConnection conn = GetConnection();
+            using (conn)
+            {
+                IDbTransaction transaction = null;
+                IEnumerable<TFirst> result = null;
+                try
+                {
+                    transaction = conn.BeginTransaction();
+                    StringBuilder sql = new StringBuilder();
+                    var aliasName = metadata.Schema.TableName.ToLower().FirstOrDefault().ToString();
+                    sql.Append($@"select * from {metadata.Schema.TableName} {aliasName}");
+                    foreach (var relation in metadata.RelationObjects)
+                    {
+                        var relationAliasName = relation.MetaData.Schema.TableName.ToLower().FirstOrDefault(c => c.ToString() != aliasName).ToString();
+                        sql.AppendLine($" {relation.JoinTable.JoinType.ToString().ToLower()} join {relation.MetaData.Schema.TableName} {relationAliasName} on {aliasName}.{relation.JoinTable.ProviderKey}={relationAliasName}.{relation.JoinTable.ForeignKey}");
+                    }
+                    result = await conn.QueryAsync(sql.ToString(), map, transaction: transaction);
+                    if (condition != null)
+                    {
+                        result = result.Where(d => condition(d));
+                    }                    
+                    //transaction?.Commit();
+                }
+                catch (Exception e)
+                {
+                    _logger?.LogError(e.ToString());
+                    transaction?.Rollback();
+                }
+                return result;
+            }
+        }
 
         public async Task<IEnumerable<T>> Query<T>() where T : class
         {
@@ -212,8 +223,21 @@ namespace DatumCollection.Data.SqlServer
                 try
                 {
                     transaction = conn.BeginTransaction();
-                    string sql = $@"select {string.Join(",", metadata.Columns.Select(p => p.Name).ToArray())} from {metadata.Schema.TableName} ";
-                    result = await conn.QueryAsync<T>(sql, null, transaction);                    
+                    var aliasName = metadata.Schema.TableName.FirstOrDefault().ToString().ToLower();
+                    StringBuilder sql = new StringBuilder();
+                    //StringBuilder column = new StringBuilder();
+                    sql.AppendLine($@"select {string.Join(",", metadata.Columns.Select(p => string.Concat(aliasName, ".", p.Name)).ToArray())} from {metadata.Schema.TableName} {aliasName}");
+                    //if (metadata.RelationObjects.Any())
+                    //{
+                    //    foreach (var relation in metadata.RelationObjects)
+                    //    {
+                    //        var relationAliasName = relation.MetaData.Schema.TableName.ToLower().FirstOrDefault(c => c.ToString() != aliasName).ToString();
+                    //        column.Append("," + string.Join(",", relation.MetaData.Columns.Select(p => string.Concat(relationAliasName, ".", p.Name)).ToArray()));
+                    //        sql.AppendLine($" {relation.JoinTable.JoinType.ToString().ToLower()} join {relation.MetaData.Schema.TableName} {relationAliasName} on {aliasName}.{relation.JoinTable.ProviderKey}={relationAliasName}.{relation.JoinTable.ForeignKey}");
+                    //    }
+                    //}
+                    //sql.Replace("*", column.ToString());
+                    result = await conn.QueryAsync<T>(sql.ToString(), null, transaction);                    
                     //transaction?.Commit();
                 }
                 catch (Exception e)
@@ -231,16 +255,41 @@ namespace DatumCollection.Data.SqlServer
             return data?.Where(condition);
         }
 
-        private async Task<DatabaseMetadata> GetMetaData<T>()
+        #region entity operation
+        public async Task<DbExecutionResult> Insert<T>(IEnumerable<T> entities)
         {
-            var metadata = new DatabaseMetadata();
-            var classAttribute = System.Attribute.GetCustomAttributes(typeof(T));
-            metadata.Schema = (SchemaAttribute)classAttribute.FirstOrDefault(a => a.GetType() == typeof(SchemaAttribute));
-            foreach (var property in typeof(T).GetProperties())
+            var metadata = await GetMetaData<T>();
+            var context = new DataStorageContext
             {
-                if (property.GetCustomAttributes(false) != null)
+                Operation = Operation.Insert,
+                Parameters = entities
+            };
+
+            var result = await ExecuteAsync(context);
+            return result;
+        }
+        #endregion
+
+        private async Task<DatabaseMetadata> GetMetaData<T>(Type specifiedType = null)
+        {
+            var type = specifiedType ?? typeof(T);
+            var metadata = new DatabaseMetadata();
+            var classAttribute = System.Attribute.GetCustomAttributes(type);
+            metadata.Schema = (SchemaAttribute)classAttribute.FirstOrDefault(a => a.GetType() == typeof(SchemaAttribute));
+            foreach (var property in type.GetProperties())
+            {
+                if (property.GetCustomAttribute(typeof(ColumnAttribute), false) != null)
                 {
-                    metadata.Columns.Add((ColumnAttribute)property.GetCustomAttributes(false).FirstOrDefault());
+                    metadata.Columns.Add((ColumnAttribute)property.GetCustomAttribute(typeof(ColumnAttribute), false));
+                }
+                if(property.GetCustomAttribute(typeof(JoinTableAttribute),false) != null)
+                {
+                    var relation = new RelationObject
+                    {                        
+                        JoinTable = (JoinTableAttribute)property.GetCustomAttribute(typeof(JoinTableAttribute), false)
+                    };
+                    relation.MetaData = await GetMetaData<T>(property.PropertyType);
+                    metadata.RelationObjects.Add(relation);
                 }
             }
 
@@ -272,7 +321,11 @@ namespace DatumCollection.Data.SqlServer
                         case "smalldatetime":
                         case "uniqueidentifier":
                             columnSql.AppendLine($",[{column.Name}] {column.Type} {(column.Required ? "not" : "")} null");
-                            break;                           
+                            break;
+                        case "decimal":
+                        case "numeric":
+                            columnSql.AppendLine($",[{column.Name}] {column.Type}({column.Precision},{column.Scale} {(column.Required ? "not" : "")} null)");
+                            break;
                         default:
                             break;
                     }                    
@@ -293,5 +346,8 @@ namespace DatumCollection.Data.SqlServer
             var isExist = ExecuteScalarAsync<bool>(context).GetAwaiter().GetResult();
             return isExist;
         }
+
+
+
     }
 }

@@ -13,7 +13,8 @@ namespace DatumCollection.Core.Hosting
         {
             var builder = new SpiderHostBuilder();
             builder.ConfigureLogService(logging => {
-                //logging.AddConsole();
+                logging.ClearProviders();
+                logging.AddConsole();
                 //logging.AddDebug();
                 //logging.AddEventSourceLogger();
                 logging.SetMinimumLevel(LogLevel.Information).AddSerilog();

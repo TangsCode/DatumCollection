@@ -10,7 +10,7 @@ namespace DatumCollection.Infrastructure.Abstraction
     /// collector interface
     /// defines collect action <see cref="CollectAsync(HttpRequest)"/>
     /// </summary>
-    public interface ICollector
+    public interface ICollector : IDisposable
     {
         Task<HttpResponse> CollectAsync(HttpRequest request);        
     }

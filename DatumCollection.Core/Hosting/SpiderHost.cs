@@ -19,6 +19,7 @@ namespace DatumCollection.Core.Hosting
         private IStartup _startup;
         private bool _stopped;
 
+        private PiplineListener _piplineListener;
         private ApplicationLifetime _applicationLifetime;
         private HostedServiceExecutor _hostedServiceExecutor;
 
@@ -27,7 +28,7 @@ namespace DatumCollection.Core.Hosting
         private readonly IConfiguration _config;
         private readonly AggregateException _hostingStartupErrors;
 
-        private readonly IApplicationBuilderFactory _applicationBuilderFactory;
+        //private readonly IApplicationBuilderFactory _applicationBuilderFactory;
 
         private IServiceProvider _applicationServices;
         private ExceptionDispatchInfo _applicationServicesException;
@@ -50,12 +51,13 @@ namespace DatumCollection.Core.Hosting
             _hostingStartupErrors = hostingStartupErrors;
             _applicationServiceCollection = services ?? throw new ArgumentNullException(nameof(services));
 
+            _applicationServiceCollection.AddSingleton<PiplineListener>();
             _applicationServiceCollection.AddSingleton<ApplicationLifetime>();
             _applicationServiceCollection.AddSingleton<HostedServiceExecutor>();
             _applicationServiceCollection.AddSingleton<ILoggerFactory,LoggerFactory>();
             //_applicationServices = _applicationServiceCollection.BuildServiceProvider();
 
-            //_logger = _applicationServices.GetRequiredService<ILoggerFactory>().CreateLogger<SpiderHost>();
+            //_logger = _applicationServices.GetRequiredService<ILoggerFactory>().CreateLogger<SpiderHost>();            
         }
 
         public void Initialize()
@@ -110,8 +112,12 @@ namespace DatumCollection.Core.Hosting
             _logger = _applicationServices.GetRequiredService<ILoggerFactory>().CreateLogger<SpiderHost>();
             _logger.Starting();
 
+            //application pipline build
             var application = BuildApplication();
-            
+
+            _piplineListener = _applicationServices.GetRequiredService<PiplineListener>();
+            _piplineListener.BeginListen(application);
+
             _applicationLifetime = _applicationServices.GetRequiredService<ApplicationLifetime>();
             _hostedServiceExecutor = _applicationServices.GetRequiredService<HostedServiceExecutor>();
 
@@ -184,6 +190,9 @@ namespace DatumCollection.Core.Hosting
             {
                 await _hostedServiceExecutor.StopAsync(cancellationToken).ConfigureAwait(false);
             }
+
+            //fire pipline listenner
+            _piplineListener?.EndListen();
 
             _applicationLifetime?.NotifyStopped();
 

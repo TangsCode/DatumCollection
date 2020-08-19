@@ -23,7 +23,7 @@ namespace DatumCollection.Core.Builder
             {
                 return context =>
                 {
-                    Func<Task> simpleNext = () => next(context);
+                    Task simpleNext() => next(context);
                     return middleware(context, simpleNext);
                 };
             });
