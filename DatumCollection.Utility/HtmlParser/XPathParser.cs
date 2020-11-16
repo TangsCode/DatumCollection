@@ -66,7 +66,7 @@ namespace DatumCollection.Utility.HtmlParser
                     return null;
                 }
 
-                return node;
+                return node.InnerText;
             }
             return null;
         }
