@@ -12,10 +12,17 @@ namespace DatumCollection.Infrastructure.Spider
     public interface ISpiderItem
     {
         /// <summary>
+        /// spider specific ISpiderConfig
+        /// that generates selectors and determine the target on dynamic pages
+        /// </summary>
+        ISpiderConfig SpiderConfig { get; }
+
+        /// <summary>
         /// get the collections of spider element
         /// </summary>
         /// <returns></returns>
         Task<ISpider> Spider(SpiderAtom atom);
+
     }
 
     public interface ISelector

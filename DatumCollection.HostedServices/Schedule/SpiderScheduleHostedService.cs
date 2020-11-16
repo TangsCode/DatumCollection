@@ -53,7 +53,7 @@ namespace DatumCollection.HostedServices.Schedule
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                //_logger.LogInformation("{service} is executing background task", nameof(SpiderScheduleHostedService));
+                _logger.LogInformation("{service} is heartbeating...", nameof(SpiderScheduleHostedService<T>));
                 var schedules = await _storage.Query<SpiderScheduleSetting>((schedule) => schedule.OnSchedule() && !schedule.IsDelete);
                 if (schedules != null && schedules.Count() > 0)
                 {
@@ -65,7 +65,6 @@ namespace DatumCollection.HostedServices.Schedule
                             (spiderItem, channel) =>
                             {
                                 spiderItem.Channel = channel;
-                                spiderItem.SpiderConfig = channel;
                                 return spiderItem;
                             },
                             i => scheduleItems.Select(si => si.FK_SpiderItem_ID).Contains(i.ID) && !i.IsDelete);

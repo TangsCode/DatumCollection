@@ -1,5 +1,6 @@
 ﻿using DatumCollection.Configuration;
 using DatumCollection.Infrastructure.Abstraction;
+using DatumCollection.Infrastructure.Spider;
 using DatumCollection.Infrastructure.Web;
 using DatumCollection.MessageQueue;
 using Microsoft.Extensions.Logging;
@@ -32,16 +33,16 @@ namespace DatumCollection.Pipline.Collectors
             _config = config;
         }
 
-        public async Task<HttpResponse> CollectAsync(HttpRequest request)
+        public async Task CollectAsync(SpiderAtom atom)
         {
             WebResponse response = null;
-            var httpResponse = new HttpResponse{ ContentType = request.ContentType };
+            var httpResponse = new HttpResponse{ ContentType = atom.Request.ContentType };
             try 
             {                
-                HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(request.Url);
-                webRequest.Method = request.Method;
+                HttpWebRequest webRequest = (HttpWebRequest)HttpWebRequest.Create(atom.Request.Url);
+                webRequest.Method = atom.Request.Method;
                 response = await webRequest.GetResponseAsync();
-                string stremReader = new StreamReader(response.GetResponseStream(), request.Encoding).ReadToEnd();
+                string stremReader = new StreamReader(response.GetResponseStream(), atom.Request.Encoding).ReadToEnd();
                 httpResponse.Content = stremReader;
                 httpResponse.Success = ((HttpWebResponse)response).StatusCode == HttpStatusCode.OK;
             }
@@ -55,7 +56,6 @@ namespace DatumCollection.Pipline.Collectors
             {
                 response?.Close();
             }
-            return httpResponse;
         }
 
         public void Dispose()

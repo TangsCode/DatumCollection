@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DatumCollection.Configuration;
 using DatumCollection.Infrastructure.Abstraction;
+using DatumCollection.Infrastructure.Spider;
 using DatumCollection.Infrastructure.Web;
 using DatumCollection.MessageQueue;
 using Microsoft.Extensions.Logging;
@@ -72,8 +73,8 @@ namespace DatumCollection.Pipline.Collector
                         #endregion
                         chromeOptions.AddArguments(new[] { "disable-infobars", "headless", "silent", "log-level=3", "no-sandbox", "disable-dev-shm-usage" });
                         _driverOptions = chromeOptions;
-                        //driver = new ChromeDriver(chromeService, chromeOptions, TimeSpan.FromSeconds(60));
-                        //driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);
+                        driver = new ChromeDriver((ChromeDriverService)_driverService, chromeOptions, TimeSpan.FromSeconds(60));
+                        driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);
                         Task.Factory.StartNew(() =>
                         {
                             while (drivers.Count < _config.WebDriverProcessCount)
@@ -125,38 +126,44 @@ namespace DatumCollection.Pipline.Collector
         
         private Task<IWebDriver> GetWebDriverInstance()
         {
-            IWebDriver driver = drivers.FirstOrDefault();
+            drivers.TryPeek(out var driver);
+            //IWebDriver driver = drivers.FirstOrDefault();
             while (driver == null)
-            {
-                Task.Delay(10000).Wait();
+            {                
                 _logger.LogInformation("wating one second to get web driver instance");
-                driver = drivers.FirstOrDefault();
-            }            
+                Task.Delay(10000).Wait();
+                drivers.TryPeek(out driver);
+            }
 
             return Task.FromResult(driver);            
         }
 
-        public async Task<HttpResponse> CollectAsync(HttpRequest request)
+        public async Task CollectAsync(SpiderAtom atom)
         {
-            HttpResponse response = new HttpResponse { Success = true };
+            atom.Response = new HttpResponse { Success = true };
             try
             {
                 var webDriver = await GetWebDriverInstance();
-                webDriver.Navigate().GoToUrl(request.Url);
-                WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));
-                wait.Until(driver =>
-                    ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-                response.Content = webDriver.PageSource;
-                response.ContentType = request.ContentType;
+                webDriver.Navigate().GoToUrl(atom.Request.Url);
+                webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+                WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));            
+                wait.IgnoreExceptionTypes(new Type[] { typeof(NoSuchElementException) });
+                wait.Until((webdriver) =>
+                {
+                    var sel = atom.SpiderItem.SpiderConfig.GetTargetSelector().Result;
+                    webdriver.FindElement(By.XPath(sel.Path));
+                    //webdriver.FindElement(By.XPath("//*[@id=\"J_StrPriceModBox\"]/dd/span"));
+                    return true;
+                }); 
+                atom.Response.Content = webDriver.PageSource;
+                atom.Response.ContentType = atom.Request.ContentType;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "collect error in {collector}", nameof(WebDriverCollector));
-                response.Success = false;
-                response.ErrorMsg = e.Message;                
+                atom.Response.Success = false;
+                atom.Response.ErrorMsg = e.Message;                
             }
-
-            return response;
         }
 
         public void Dispose()
@@ -168,11 +175,11 @@ namespace DatumCollection.Pipline.Collector
             }
 
             _driverService?.Dispose();
-
-            foreach (var process in Process.GetProcessesByName("chromedriver"))
-            {
-                process.Kill();
-            }
+            
+            //foreach (var process in Process.GetProcessesByName("chromedriver"))
+            //{
+            //    process.Kill();
+            //}
         }
     }
 }

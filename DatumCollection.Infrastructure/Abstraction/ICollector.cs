@@ -1,4 +1,4 @@
-﻿using DatumCollection.Infrastructure.Web;
+﻿using DatumCollection.Infrastructure.Spider;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +12,6 @@ namespace DatumCollection.Infrastructure.Abstraction
     /// </summary>
     public interface ICollector : IDisposable
     {
-        Task<HttpResponse> CollectAsync(HttpRequest request);        
+        Task CollectAsync(SpiderAtom atom);        
     }
 }

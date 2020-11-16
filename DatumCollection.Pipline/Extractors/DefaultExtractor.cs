@@ -19,17 +19,15 @@ namespace DatumCollection.Pipline.Extractors
             _logger = logger;
         }
 
-        public async Task<ISpider> ExtractAsync(SpiderAtom atom)
+        public async Task ExtractAsync(SpiderAtom atom)
         {
             try
             {
-                var model = await atom.SpiderItem.Spider(atom);
-                return model;
+                atom.Model = await atom.SpiderItem.Spider(atom);
             }
             catch (Exception e)
             {
                 _logger.LogError(e.ToString());
-                return null;
             }            
         }
     }

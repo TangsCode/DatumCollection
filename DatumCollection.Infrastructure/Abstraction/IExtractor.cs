@@ -1,5 +1,4 @@
 ﻿using DatumCollection.Infrastructure.Spider;
-using DatumCollection.Infrastructure.Web;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,6 +14,6 @@ namespace DatumCollection.Infrastructure.Abstraction
         /// <typeparam name="T"></typeparam>
         /// <param name="atom"></param>
         /// <returns></returns>
-        Task<ISpider> ExtractAsync(SpiderAtom atom);
+        Task ExtractAsync(SpiderAtom atom);
     }
 }

@@ -32,34 +32,5 @@ namespace DatumCollection.Infrastructure.Spider
         /// </summary>
         public ISpiderItem SpiderItem { get; set; }
 
-        //public async Task<T> Spider<T>(HttpResponse response) where T : ISpider
-        //{
-        //    var result = System.Activator.CreateInstance<T>();
-
-        //    var selectors = await SpiderConfig.GetSpiderSelectors();
-        //    var props = typeof(T).GetProperties();
-
-        //    foreach (var selector in selectors)
-        //    {
-        //        ISelector sel = null;
-        //        switch (selector.Type)
-        //        {
-        //            case Selectors.SelectorType.XPath:
-        //                sel = new XPathSelector();                        
-        //                break;
-        //            case Selectors.SelectorType.Html:
-        //                break;
-        //            case Selectors.SelectorType.Json:
-        //                break;
-        //            default:
-        //                break;
-        //        }
-        //        props.FirstOrDefault(p => p.Name.ToLower() == selector.Key.ToLower()).SetValue(result, sel.SelectAsync<string>(selector.Path));
-        //    }
-
-
-        //    return result;
-        //}
-
     }
 }
