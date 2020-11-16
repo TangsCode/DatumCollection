@@ -68,5 +68,16 @@ namespace DatumCollection.Data.Entities
 
             return selectors;
         }
+
+        public Task<SelectorAttribute> GetTargetSelector()
+        {
+            var selector = new SelectorAttribute
+            {
+                Type = SelectorType.XPath,
+                Key = "Price",
+                Path = PriceXPath
+            };
+            return Task.FromResult(selector);
+        }
     }
 }

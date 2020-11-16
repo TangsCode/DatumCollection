@@ -32,7 +32,10 @@ namespace DatumCollection.Data.Entities
         [JoinTable("FK_Channel_ID")]
         public Channel Channel { get; set; }
 
-        public ISpiderConfig SpiderConfig { get; set; }
+        public ISpiderConfig SpiderConfig
+        {
+            get { return Channel; }
+        }
 
         public async Task<ISpider> Spider(SpiderAtom atom)
         {
@@ -44,6 +47,11 @@ namespace DatumCollection.Data.Entities
 
                 foreach (var selector in selectors)
                 {
+                    if(string.IsNullOrEmpty(selector.Path) 
+                        || !props.Any(p => p.Name.ToLower() == selector.Key.ToLower()))
+                    {
+                        continue;
+                    }
                     IParser parser = null; object o = null;
                     switch (selector.Type)
                     {
@@ -60,7 +68,8 @@ namespace DatumCollection.Data.Entities
                         default:
                             break;
                     }
-                    props.FirstOrDefault(p => p.Name.ToLower() == selector.Key.ToLower())?.SetValue(result, o);
+                    var prop = props.FirstOrDefault(p => p.Name.ToLower() == selector.Key.ToLower());
+                    prop?.SetValue(result, Convert.ChangeType(o, prop.PropertyType));
                 }
                 return result;
             }

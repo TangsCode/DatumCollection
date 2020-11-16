@@ -26,5 +26,12 @@ namespace DatumCollection.Data.Entities
         public Guid? FK_SystemUser_Modify_ID { get; set; }
         [Column(Name = "FK_SystemUserDepartment_Create_ID", Type = "uniqueidentifier")]
         public Guid? FK_SystemUserDepartment_Create_ID { get; set; }
+
+        public SystemBase()
+        {
+            ID = Guid.NewGuid();
+            CreateTime = DateTime.Now;
+            ModifyTime = DateTime.Now;
+        }
     }
 }

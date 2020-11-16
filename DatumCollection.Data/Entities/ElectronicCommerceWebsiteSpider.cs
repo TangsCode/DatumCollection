@@ -10,8 +10,8 @@ namespace DatumCollection.Data.Entities
     /// <summary>
     /// 电商网站
     /// </summary>
-    [Schema("GoodsData")]
-    public class ElectronicCommerceWebsite : SystemBase, ISpider
+    [Schema("ElectronicCommerceWebsite")]
+    public class ElectronicCommerceWebsiteSpider : SystemBase, ISpider
     {
         [Column(Name = "Price", Type = "decimal", Precision = 10, Scale = 2)]
         public decimal Price { get; set; }
@@ -22,17 +22,17 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "TaxFee", Type = "decimal", Precision = 10, Scale = 2)]
         public decimal TaxFee { get; set; }
 
-        [Column(Name = "PostageDesc")]
-        public string PostageDesc { get; set; }
+        [Column(Name = "Postage")]
+        public string Postage { get; set; }
 
-        [Column(Name = "PreferentialInfo")]
-        public string PreferentialInfo { get; set; }
+        [Column(Name = "Preferential")]
+        public string Preferential { get; set; }
 
-        [Column(Name = "CouponInfo")]
-        public string CouponInfo { get; set; }
+        [Column(Name = "Coupon")]
+        public string Coupon { get; set; }
 
         [Column(Name = "ImageText")]
-        public string ImageText { get; set; }
+        public string ImageText { get; set; }        
         
     }
 }

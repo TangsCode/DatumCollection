@@ -35,7 +35,7 @@ namespace DatumCollection.Data.MySql
 
         public async Task<DbExecutionResult> ExecuteAsync(DataStorageContext context)
         {
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             DbExecutionResult result = new DbExecutionResult();
             using (conn)
             {
@@ -113,7 +113,7 @@ namespace DatumCollection.Data.MySql
 
         public async Task<IEnumerable<T>> Query<T>(DataStorageContext context)
         {
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             using (conn)
             {
                 IDbTransaction transaction = conn.BeginTransaction();
@@ -143,7 +143,7 @@ namespace DatumCollection.Data.MySql
             throw new NotImplementedException();
         }
 
-        public IDbConnection GetConnection()
+        public IDbConnection GetDbConnection()
         {
             try
             {

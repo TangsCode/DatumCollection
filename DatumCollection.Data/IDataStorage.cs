@@ -85,7 +85,7 @@ namespace DatumCollection.Data
         /// 获取数据库连接
         /// </summary>
         /// <returns></returns>
-        IDbConnection GetConnection();
+        IDbConnection GetDbConnection();
 
         /// <summary>
         /// 数据库对象是否存在

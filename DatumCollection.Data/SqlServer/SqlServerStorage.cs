@@ -35,7 +35,7 @@ namespace DatumCollection.Data.SqlServer
 
         public async Task<DbExecutionResult> ExecuteAsync(DataStorageContext context)
         {
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             DbExecutionResult result = new DbExecutionResult();
             using (conn)
             {
@@ -118,7 +118,7 @@ namespace DatumCollection.Data.SqlServer
 
         public async Task<T> ExecuteScalarAsync<T>(DataStorageContext context)
         {
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             T result = default(T);
             using (conn)
             {
@@ -140,7 +140,7 @@ namespace DatumCollection.Data.SqlServer
 
         public async Task<IEnumerable<T>> Query<T>(DataStorageContext context)
         {
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             using (conn)
             {
                 IDbTransaction transaction = conn.BeginTransaction();
@@ -160,7 +160,7 @@ namespace DatumCollection.Data.SqlServer
             }
         }
 
-        public IDbConnection GetConnection()
+        public IDbConnection GetDbConnection()
         {
             try
             {
@@ -180,7 +180,7 @@ namespace DatumCollection.Data.SqlServer
             Func<TFirst, bool> condition = null) where TFirst : class where TSecond: class
         {
             var metadata = await GetMetaData<TFirst>();            
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             using (conn)
             {
                 IDbTransaction transaction = null;
@@ -215,7 +215,7 @@ namespace DatumCollection.Data.SqlServer
         public async Task<IEnumerable<T>> Query<T>() where T : class
         {
             var metadata = await GetMetaData<T>();
-            IDbConnection conn = GetConnection();
+            IDbConnection conn = GetDbConnection();
             using (conn)
             {
                 IDbTransaction transaction = null;
@@ -258,14 +258,23 @@ namespace DatumCollection.Data.SqlServer
         #region entity operation
         public async Task<DbExecutionResult> Insert<T>(IEnumerable<T> entities)
         {
-            var metadata = await GetMetaData<T>();
-            var context = new DataStorageContext
+            var result = new DbExecutionResult();
+            try
             {
-                Operation = Operation.Insert,
-                Parameters = entities
-            };
+                var metadata = await GetMetaData<T>(entities.FirstOrDefault().GetType());
+                var context = new DataStorageContext
+                {
+                    Metadata = metadata,
+                    Operation = Operation.Insert,
+                    Parameters = entities
+                };
 
-            var result = await ExecuteAsync(context);
+                result = await ExecuteAsync(context);                
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("error occured in inserting entities with {storage}\r\nmessage:{error}", nameof(SqlServerStorage), e.Message);
+            }
             return result;
         }
         #endregion
@@ -324,7 +333,7 @@ namespace DatumCollection.Data.SqlServer
                             break;
                         case "decimal":
                         case "numeric":
-                            columnSql.AppendLine($",[{column.Name}] {column.Type}({column.Precision},{column.Scale} {(column.Required ? "not" : "")} null)");
+                            columnSql.AppendLine($",[{column.Name}] {column.Type}({column.Precision},{column.Scale}) {(column.Required ? "not" : "")} null");
                             break;
                         default:
                             break;
