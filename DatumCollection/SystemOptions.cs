@@ -140,16 +140,6 @@ namespace DatumCollection
 
         public virtual string TopicScheduleObserver => "ScheduleObserver";
 
-        public virtual string TopicResponseHandler => "ResponseHandler-";
-
-        public virtual string TopicDownloaderAgentRegisterCenter => "DownloaderAgentRegisterCenter";
-
-        public virtual string TopicStatisticsService => "StatisticsService";
-
-        public virtual string TopicDownloadQueue => "DownloadQueue";
-
-        public virtual string TopicAdslDownloadQueue => "AdslDownloadQueue";
-
         public virtual int ScheduleIdleWaitCount =>
             _configuration["ScheduleIdleWaitCount"].NotNull()
             ? int.Parse(_configuration["ScheduleIdleWaitCount"])
