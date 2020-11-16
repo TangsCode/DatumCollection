@@ -122,8 +122,11 @@ namespace DatumCollection.Core.Hosting
             _hostedServiceExecutor = _applicationServices.GetRequiredService<HostedServiceExecutor>();
 
             //fire IHostedService.Start()
-            await _hostedServiceExecutor.StartAsync(cancellationToken).ConfigureAwait(false);
-            
+            await Task.Factory.StartNew(async () =>
+             {
+                 await _hostedServiceExecutor.StartAsync(cancellationToken);
+             });
+                        
             _applicationLifetime?.NotifyStarted();
             _logger.Started();
 
@@ -193,6 +196,10 @@ namespace DatumCollection.Core.Hosting
 
             //fire pipline listenner
             _piplineListener?.EndListen();
+
+            //release native memory
+            var collector = _applicationServices.GetRequiredService<Infrastructure.Abstraction.ICollector>();
+            collector.Dispose();
 
             _applicationLifetime?.NotifyStopped();
 

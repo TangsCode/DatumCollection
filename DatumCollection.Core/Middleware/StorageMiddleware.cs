@@ -48,7 +48,7 @@ namespace DatumCollection.Core.Middleware
                  {
                      if (atom != null)
                      {
-                         //await _storage.Insert(new[] { atom.Model });
+                         await _storage.Insert(new[] { atom.Model });
                      }
                  });
             }

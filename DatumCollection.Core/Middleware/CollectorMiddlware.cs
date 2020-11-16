@@ -43,10 +43,15 @@ namespace DatumCollection.Core.Middleware
         {
             try
             {
-                Parallel.ForEach(context.SpiderAtoms, async atom =>
+                _logger.LogInformation("Task[{task}] reaches {middleware}", context.Task.Id, nameof(StorageMiddleware));
+                //var result = Parallel.ForEach(context.SpiderAtoms, async atom =>
+                //{
+                //    await _collector.CollectAsync(atom);                    
+                //});                
+                foreach (var atom in context.SpiderAtoms)
                 {
-                    atom.Response = await _collector.CollectAsync(atom.Request);                    
-                });
+                    await _collector.CollectAsync(atom);
+                }
                 _logger.LogInformation("{middleware} process {count} atoms completed.", nameof(CollectorMiddlware), context.SpiderAtoms.Count);
             }
             catch (Exception e)

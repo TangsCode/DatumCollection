@@ -45,7 +45,7 @@ namespace DatumCollection.Core.Middleware
                 _logger.LogInformation("Task[{task}] reaches {middleware}", context.Task.Id, nameof(ExtractorMiddleware));
                 Parallel.ForEach(context.SpiderAtoms, async atom =>
                 {
-                    atom.Model = await _extractor.ExtractAsync(atom);
+                    await _extractor.ExtractAsync(atom);
                 });
             }
             catch (Exception e)

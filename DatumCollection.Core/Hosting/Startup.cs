@@ -46,7 +46,7 @@ namespace DatumCollection.Core.Hosting
             services.AddSpiderCollector(
                 b => b.UseWebDriver());
             services.AddSpiderExtractor();
-            services.AddSpider<ElectronicCommerceWebsite>();
+            services.AddSpider<ElectronicCommerceWebsiteSpider>();
 
             return services.BuildServiceProvider();            
         }
