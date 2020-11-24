@@ -4,7 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>TangsCode</Authors>
     <Company>TangsCode</Company>
-    <Description>系统配置类库；</Description>
+    <Description>spider configuration</Description>
+    <Version>2.0.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

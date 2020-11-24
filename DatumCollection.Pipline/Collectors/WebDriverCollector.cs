@@ -175,11 +175,6 @@ namespace DatumCollection.Pipline.Collector
             }
 
             _driverService?.Dispose();
-            
-            //foreach (var process in Process.GetProcessesByName("chromedriver"))
-            //{
-            //    process.Kill();
-            //}
         }
     }
 }
