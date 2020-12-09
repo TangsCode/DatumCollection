@@ -13,6 +13,12 @@ namespace DatumCollection.Infrastructure.Spider
         public DateTime FinishTime { get; set; }
 
         public TimeSpan ElapsedTime { get; }
+
+        public SpiderTask()
+        {
+            Id = Guid.NewGuid();
+            BeginTime = DateTime.Now;
+        }
         
     }
 }

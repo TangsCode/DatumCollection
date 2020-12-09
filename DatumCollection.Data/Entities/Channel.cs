@@ -41,7 +41,7 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "CloseXPath")]
         public string CloseXPath { get; set; }
 
-        public async Task<IEnumerable<SelectorAttribute>> GetSpiderSelectors()
+        public async Task<IEnumerable<SelectorAttribute>> GetAllSelectors()
         {
             var selectors = new List<SelectorAttribute>();
 

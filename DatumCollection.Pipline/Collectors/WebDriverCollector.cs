@@ -29,7 +29,7 @@ namespace DatumCollection.Pipline.Collector
         private readonly SpiderClientConfiguration _config;
 
         private IWebDriver driver;
-        private ConcurrentBag<IWebDriver> drivers;
+        private ConcurrentBag<ManagedWebDriver> _drivers;
         private DriverService _driverService;
         private DriverOptions _driverOptions;
 
@@ -56,7 +56,7 @@ namespace DatumCollection.Pipline.Collector
             {
                 Directory.CreateDirectory(ImagePath);
             }
-            drivers = new ConcurrentBag<IWebDriver>();
+            _drivers = new ConcurrentBag<ManagedWebDriver>();
             _browser = (Browser)Enum.Parse(typeof(Browser), _config.Browser ?? Browser.Chrome.ToString(), true);
             switch (_browser)
             {
@@ -68,8 +68,28 @@ namespace DatumCollection.Pipline.Collector
                         _driverService.SuppressInitialDiagnosticInformation = true;
                         var chromeOptions = new ChromeOptions();
                         #region proxy setting
-                        //Proxy proxy = new Proxy();
-                        //proxy.Kind = ProxyKind.Manual;
+                        if (_config.IsUseProxy)
+                        {
+                            Proxy proxy = new Proxy();
+                            proxy.Kind = ProxyKind.Manual;
+                            ProxyProtocol protocol = (ProxyProtocol)Enum.Parse(typeof(ProxyProtocol), _config.ProxyProtocol, true);
+                            switch (protocol)
+                            {
+                                case ProxyProtocol.Http:
+                                    proxy.HttpProxy = _config.ProxyAddress;
+                                    break;
+                                case ProxyProtocol.SSL:
+                                    proxy.SslProxy = _config.ProxyAddress;
+                                    break;
+                                case ProxyProtocol.Ftp:
+                                    proxy.FtpProxy = _config.ProxyAddress;
+                                    break;
+                                case ProxyProtocol.Socks:
+                                    proxy.SocksProxy = _config.ProxyAddress;
+                                    break;
+                            }
+                            chromeOptions.Proxy = proxy;
+                        }                        
                         #endregion
                         chromeOptions.AddArguments(new[] { "disable-infobars", "headless", "silent", "log-level=3", "no-sandbox", "disable-dev-shm-usage" });
                         _driverOptions = chromeOptions;
@@ -77,11 +97,11 @@ namespace DatumCollection.Pipline.Collector
                         driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);
                         Task.Factory.StartNew(() =>
                         {
-                            while (drivers.Count < _config.WebDriverProcessCount)
+                            while (_drivers.Count < _config.WebDriverProcessCount)
                             {
                                 var webdriver = new ChromeDriver((ChromeDriverService)_driverService, chromeOptions, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));
-                                drivers.Add(webdriver);
-                                _logger.LogDebug("just added a new web driver, now drivers count {count}", drivers.Count);
+                                _drivers.Add(new ManagedWebDriver(webdriver));
+                                _logger.LogDebug("just added a new web driver, now drivers count {count}", _drivers.Count);
                             }
                         });
                         break;
@@ -124,26 +144,28 @@ namespace DatumCollection.Pipline.Collector
             }
         }
         
-        private Task<IWebDriver> GetWebDriverInstance()
+        private Task<ManagedWebDriver> GetWebDriverInstance()
         {
-            drivers.TryPeek(out var driver);
-            //IWebDriver driver = drivers.FirstOrDefault();
+            var driver = _drivers.FirstOrDefault(md => !md.IsInUse);
             while (driver == null)
             {                
                 _logger.LogInformation("wating one second to get web driver instance");
                 Task.Delay(10000).Wait();
-                drivers.TryPeek(out driver);
+                driver = _drivers.FirstOrDefault(md => !md.IsInUse);
             }
 
+            driver.IsInUse = true;
             return Task.FromResult(driver);            
         }
 
         public async Task CollectAsync(SpiderAtom atom)
         {
             atom.Response = new HttpResponse { Success = true };
+            ManagedWebDriver md = null;
             try
             {
-                var webDriver = await GetWebDriverInstance();
+                md = await GetWebDriverInstance(); ;
+                var webDriver = md.WebDriver;
                 webDriver.Navigate().GoToUrl(atom.Request.Url);
                 webDriver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
                 WebDriverWait wait = new WebDriverWait(webDriver, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));            
@@ -151,8 +173,7 @@ namespace DatumCollection.Pipline.Collector
                 wait.Until((webdriver) =>
                 {
                     var sel = atom.SpiderItem.SpiderConfig.GetTargetSelector().Result;
-                    webdriver.FindElement(By.XPath(sel.Path));
-                    //webdriver.FindElement(By.XPath("//*[@id=\"J_StrPriceModBox\"]/dd/span"));
+                    webdriver.FindElement(By.XPath(sel.Path));                    
                     return true;
                 }); 
                 atom.Response.Content = webDriver.PageSource;
@@ -162,19 +183,36 @@ namespace DatumCollection.Pipline.Collector
             {
                 _logger.LogError(e, "collect error in {collector}", nameof(WebDriverCollector));
                 atom.Response.Success = false;
-                atom.Response.ErrorMsg = e.Message;                
+                atom.Response.ErrorMsg = e.Message;
+            }
+            finally
+            {
+                md.IsInUse = false;
             }
         }
 
         public void Dispose()
         {
-            foreach (var driver in drivers)
-            {                
-                driver.Quit();
-                driver.Dispose();
+            foreach (var driver in _drivers)
+            {
+                driver.WebDriver.Quit();
+                driver.WebDriver.Dispose();
             }
 
             _driverService?.Dispose();
         }
+    }
+
+    public class ManagedWebDriver
+    {
+        public ManagedWebDriver(IWebDriver driver)
+        {
+            WebDriver = driver;
+            IsInUse = false;
+        }
+
+        public IWebDriver WebDriver { get; }
+
+        public bool IsInUse { get; set; }
     }
 }

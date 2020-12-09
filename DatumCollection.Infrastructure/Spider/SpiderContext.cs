@@ -19,6 +19,7 @@ namespace DatumCollection.Infrastructure.Spider
         public SpiderContext()
         {
             SpiderAtoms = new HashSet<SpiderAtom>();
+            Task = new SpiderTask();
         }
     }
 

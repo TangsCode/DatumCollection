@@ -58,23 +58,20 @@ namespace DatumCollection.HostedServices.Schedule
                 if (schedules != null && schedules.Count() > 0)
                 {
                     _logger.LogInformation("schedules retriving, count {count}", schedules.Count());
-                    foreach (var schedule in schedules)
+                    Parallel.ForEach(schedules, async schedule =>
                     {
-                        var scheduleItems = await _storage.Query<SpiderScheduleItems>(s => schedules.Select(sc => sc.ID).Contains(s.FK_SpiderSchedule_ID) && !s.IsDelete);
-                        var items = await _storage.Query<SpiderItem<T>,Channel>(
-                            (spiderItem, channel) =>
+                        var items = await _storage.Query<SpiderItem<T>, Channel, SpiderScheduleItems>(
+                            (item, channel, scheduleitem) =>
                             {
-                                spiderItem.Channel = channel;
-                                return spiderItem;
-                            },
-                            i => scheduleItems.Select(si => si.FK_SpiderItem_ID).Contains(i.ID) && !i.IsDelete);
-
+                                item.Channel = channel;
+                                scheduleitem.SpiderSource = item;
+                                scheduleitem.SpiderScheduleSetting = schedule;
+                                return item;
+                            }
+                            );
                         if (items.Any())
                         {
-                            var spiderContext = new SpiderContext
-                            {
-                                Task = new SpiderTask { Id = Guid.NewGuid(), BeginTime = DateTime.Now }
-                            };     
+                            var spiderContext = new SpiderContext();
                             foreach (var item in items)
                             {
                                 var atom = new SpiderAtom
@@ -97,8 +94,7 @@ namespace DatumCollection.HostedServices.Schedule
                                 PublishTime = (long)DateTimeHelper.GetCurrentUnixTimeNumber()
                             });
                         }
-                        
-                    }
+                    });
                 }
                 await Task.Delay(TimeSpan.FromSeconds(_config.ScheduleQueryFrequency), cancellationToken);
             }

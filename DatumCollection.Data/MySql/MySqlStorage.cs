@@ -172,5 +172,13 @@ namespace DatumCollection.Data.MySql
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<TFirst>> Query<TFirst, TSecond, TThird>(Func<TFirst, TSecond, TThird, TFirst> map, Func<TFirst, bool> condition = null)
+            where TFirst : class
+            where TSecond : class
+            where TThird : class
+        {
+            throw new NotImplementedException();
+        }
     }
 }

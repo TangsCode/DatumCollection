@@ -109,6 +109,22 @@ namespace DatumCollection.Configuration
 
         #endregion
 
+        #region network
+        private IConfigurationSection _network => _configuration.GetSection("network");
+        /// <summary>
+        /// 是否使用代理
+        /// </summary>
+        public bool IsUseProxy => bool.Parse(_network.GetSection("useProxy")?.Value ?? "false");
+        /// <summary>
+        /// 代理协议
+        /// </summary>
+        public string ProxyProtocol => _network.GetSection("protocol")?.Value;
+        /// <summary>
+        /// 代理地址(包含端口号)
+        /// </summary>
+        public string ProxyAddress => _network.GetSection("address")?.Value;
+        #endregion
+
         #region storage configuration
         IConfigurationSection _storage => _configuration.GetSection("storage");
 

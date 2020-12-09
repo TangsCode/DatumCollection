@@ -71,6 +71,19 @@ namespace DatumCollection.Data
             Func<TFirst, TSecond, TFirst> map,
             Func<TFirst, bool> condition = null) where TFirst : class where TSecond : class;
 
+        /// <summary>
+        /// 关联查询
+        /// </summary>
+        /// <typeparam name="TFirst"></typeparam>
+        /// <typeparam name="TSecond"></typeparam>
+        /// <typeparam name="TThird"></typeparam>
+        /// <param name="map"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        Task<IEnumerable<TFirst>> Query<TFirst, TSecond, TThird>(
+            Func<TFirst, TSecond, TThird, TFirst> map,
+            Func<TFirst, bool> condition = null) where TFirst : class where TSecond : class where TThird : class;
+
         #region entity operation
         /// <summary>
         /// 插入实体

@@ -16,5 +16,8 @@ namespace DatumCollection.Data.Entities
 
         [JoinTable("FK_SpiderSchedule_ID")]
         public SpiderScheduleSetting SpiderScheduleSetting { get; set; }
+
+        [JoinTable("FK_SpiderItem_ID")]
+        public SpiderSource SpiderSource { get; set; }
     }
 }

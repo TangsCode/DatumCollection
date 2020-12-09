@@ -13,6 +13,12 @@ namespace DatumCollection.Data.Entities
     [Schema("ElectronicCommerceWebsite")]
     public class ElectronicCommerceWebsiteSpider : SystemBase, ISpider
     {
+        [Column(Name = "FK_SpiderItem_ID", Type = "uniqueidentifier")]
+        public Guid FK_SpiderItem_ID { get; set; }
+
+        [JoinTable("FK_SpiderItem_ID")]
+        public SpiderSource SpiderSource { get; set; }
+
         [Column(Name = "Price", Type = "decimal", Precision = 10, Scale = 2)]
         public decimal Price { get; set; }
 

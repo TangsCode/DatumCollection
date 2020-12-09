@@ -32,6 +32,8 @@ namespace DatumCollection.Data.Entities
             ID = Guid.NewGuid();
             CreateTime = DateTime.Now;
             ModifyTime = DateTime.Now;
+            FK_SystemUser_Create_ID = Guid.Empty;
+            FK_SystemUser_Modify_ID = Guid.Empty;
         }
     }
 }

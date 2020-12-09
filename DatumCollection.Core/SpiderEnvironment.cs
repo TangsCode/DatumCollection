@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Net.NetworkInformation;
 using System.Diagnostics;
 
-namespace DatumCollection
+namespace DatumCollection.Core
 {
     public static class SpiderEnvironment
     {

@@ -19,7 +19,7 @@ namespace DatumCollection.Infrastructure.Spider
         /// get all spider selectors on the page
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<SelectorAttribute>> GetSpiderSelectors();
+        Task<IEnumerable<SelectorAttribute>> GetAllSelectors();
     }
 
     public enum ConfigSource
