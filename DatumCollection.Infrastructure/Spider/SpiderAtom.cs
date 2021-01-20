@@ -32,9 +32,11 @@ namespace DatumCollection.Infrastructure.Spider
         /// </summary>
         public ISpiderItem SpiderItem { get; set; }
 
+        public SpiderStatus SpiderStatus { get; set; }
+
         public SpiderAtom()
         {
-
+            SpiderStatus = SpiderStatus.OK;
         }
 
     }

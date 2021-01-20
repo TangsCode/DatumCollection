@@ -8,8 +8,6 @@ namespace DatumCollection.Infrastructure.Spider
 {
     public class SpiderContext
     {
-        public SpiderStatus SpiderStatus { get; set; }
-
         public SpiderTask Task { get; set; }        
 
         public IServiceProvider Services { get; }
@@ -26,7 +24,9 @@ namespace DatumCollection.Infrastructure.Spider
     public enum SpiderStatus
     {
         OK,        
-        Error
+        CollectError,
+        ExtractError,
+        StorageError,
     }
     
 }

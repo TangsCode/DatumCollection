@@ -8,17 +8,17 @@ namespace DatumCollection.Infrastructure.Spider
     [Schema("SpiderTask")]
     public class SpiderTask
     {
-        [Column("ID","uniqueidentifier")]
+        [Column(Name = "ID", Type = "uniqueidentifier")]
         public Guid Id { get; set; }
 
-        [Column("BeginTime","datetime")]
+        [Column(Name = "BeginTime", Type = "datetime")]
         public DateTime BeginTime { get; set; }
 
-        [Column("FinishTime", "datetime")]
+        [Column(Name = "FinishTime", Type = "datetime")]
         public DateTime FinishTime { get; set; }
 
-        [Column("ElapsedTime", "datetime")]
-        public TimeSpan ElapsedTime { get { return FinishTime == null ? TimeSpan.Zero : FinishTime.Subtract(BeginTime); } }
+        [Column(Name = "ElapsedTime", Type = "double")]
+        public double ElapsedTime { get { return FinishTime == null ? 0 : (FinishTime - BeginTime).TotalSeconds; } }
 
         public SpiderTask()
         {

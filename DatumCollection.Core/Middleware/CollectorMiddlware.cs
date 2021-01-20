@@ -10,6 +10,7 @@ using DatumCollection.Configuration;
 using DatumCollection.Infrastructure.Abstraction;
 using System.Linq;
 using DatumCollection.Utility.Helper;
+using DatumCollection.Utility.Extensions;
 
 namespace DatumCollection.Core.Middleware
 {
@@ -44,7 +45,7 @@ namespace DatumCollection.Core.Middleware
             try
             {
                 _logger.LogInformation("Task[{task}] reaches {middleware}, atom count {count}", context.Task.Id, nameof(StorageMiddleware),context.SpiderAtoms.Count);              
-                foreach (var atom in context.SpiderAtoms)
+                foreach (var atom in context.SpiderAtoms.StatusOk())
                 {
                     await _collector.CollectAsync(atom);
                 }

@@ -3,6 +3,7 @@ using DatumCollection.Data.Entities;
 using DatumCollection.Infrastructure.Abstraction;
 using DatumCollection.Infrastructure.Spider;
 using DatumCollection.MessageQueue;
+using DatumCollection.Utility.Extensions;
 using DatumCollection.Utility.Helper;
 using Microsoft.Extensions.Logging;
 using System;
@@ -43,7 +44,7 @@ namespace DatumCollection.Core.Middleware
             try
             {
                 _logger.LogInformation("Task[{task}] reaches {middleware}", context.Task.Id, nameof(ExtractorMiddleware));
-                Parallel.ForEach(context.SpiderAtoms, async atom =>
+                Parallel.ForEach(context.SpiderAtoms.StatusOk(), async atom =>
                 {
                     await _extractor.ExtractAsync(atom);
                 });

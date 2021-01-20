@@ -41,7 +41,7 @@ namespace DatumCollection.Data.Entities
     {
         public Task<IEnumerable<SelectorAttribute>> GetAllSelectors()
         {
-            IEnumerable<SelectorAttribute> selectors = new List<SelectorAttribute>();
+            var selectors = new List<SelectorAttribute>();
             var config = Channel;
             try
             {
@@ -50,7 +50,7 @@ namespace DatumCollection.Data.Entities
                 {
                     if (prop.Name.ToLower().Contains(SelectorType.XPath.ToString().ToLower()))
                     {
-                        selectors.Append(new SelectorAttribute
+                        selectors.Add(new SelectorAttribute
                         {
                             Type = SelectorType.XPath,
                             Key = prop.Name.Replace(SelectorType.XPath.ToString(), ""),
@@ -64,7 +64,7 @@ namespace DatumCollection.Data.Entities
                 throw e;
             }
 
-            return Task.FromResult(selectors);
+            return Task.FromResult(selectors.AsEnumerable());
         }
 
         public Task<SelectorAttribute> GetTargetSelector()
@@ -122,7 +122,7 @@ namespace DatumCollection.Data.Entities
             }
             catch (Exception e)
             {
-                throw;
+                throw e;
             }
 
 

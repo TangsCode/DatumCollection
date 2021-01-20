@@ -1,7 +1,12 @@
-﻿using DatumCollection.Infrastructure.Abstraction;
+﻿using DatumCollection.Configuration;
+using DatumCollection.Data;
+using DatumCollection.Infrastructure.Abstraction;
 using DatumCollection.Infrastructure.Spider;
+using DatumCollection.MessageQueue;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,9 +17,37 @@ namespace DatumCollection.Pipline.Statistics
     /// </summary>
     public class DefaultStatistics : IStatistics
     {
-        public Task Analyze(SpiderContext conetxt)
+        private readonly ILogger<DefaultStatistics> _logger;
+        private readonly IMessageQueue _mq;
+        private readonly SpiderClientConfiguration _config;
+        private readonly IDataStorage _storage;
+
+        public DefaultStatistics(
+            ILogger<DefaultStatistics> logger,
+            IMessageQueue mq,
+            SpiderClientConfiguration config,
+            IDataStorage storage)
         {
-            throw new NotImplementedException();
+            _logger = logger;
+            _mq = mq;
+            _config = config;
+            _storage = storage;
+        }
+
+        public async Task Analyze(SpiderContext context)
+        {
+            try
+            {
+                _logger.LogInformation("Task[{task}] statistics:\r\n success:{success} fail:{fail} toal:{total} completed in {elap} secs.",
+                    context.Task.Id, context.SpiderAtoms.Count(a => a.SpiderStatus == SpiderStatus.OK), context.SpiderAtoms.Count(a => a.SpiderStatus != SpiderStatus.OK), context.SpiderAtoms.Count, context.Task.ElapsedTime);
+                context.Task.FinishTime = DateTime.Now;
+                await _storage.Insert(new[] { context.Task });
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.ToString());                
+            }
+            
         }
     }
 }

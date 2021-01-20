@@ -34,11 +34,15 @@ namespace DatumCollection.Pipline.Storage
         {
             try
             {
-                await _storage.Insert(new[] { atom.Model });
+                if(atom.Model != null)
+                {
+                    await _storage.Insert(new[] { atom.Model });
+                }                
             }
             catch (Exception e)
             {
                 _logger.LogError(e.ToString());
+                atom.SpiderStatus = SpiderStatus.StorageError;
                 await _mq.PublishAsync(_config.TopicStatisticsFail, new Message
                 {
                     MessageType = ErrorMessageType.StorageError.ToString(),

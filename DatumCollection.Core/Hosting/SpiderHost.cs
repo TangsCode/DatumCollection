@@ -158,7 +158,6 @@ namespace DatumCollection.Core.Hosting
             {
                 _logger.LogError("application build error :{0}", e);
                 return context => {
-                    context.SpiderStatus = SpiderStatus.Error;
                     return Task.CompletedTask;
                 };
             }

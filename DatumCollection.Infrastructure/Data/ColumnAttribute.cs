@@ -24,11 +24,6 @@ namespace DatumCollection.Infrastructure.Data
 
         public bool IsUnqiue { get; set; } = false;
 
-        public ColumnAttribute(string name, string type)
-        {
-            Name = name;
-            Type = type;
-        }
         public PropertyInfo PropertyInfo { get; set; }
     }
 }

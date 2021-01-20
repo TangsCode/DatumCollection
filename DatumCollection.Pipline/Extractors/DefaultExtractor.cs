@@ -37,6 +37,7 @@ namespace DatumCollection.Pipline.Extractors
             catch (Exception e)
             {
                 _logger.LogError(e.ToString());
+                atom.SpiderStatus = SpiderStatus.ExtractError;
                 await _mq.PublishAsync(_config.TopicStatisticsFail, new Message
                 {
                     MessageType = ErrorMessageType.CollectorError.ToString(),

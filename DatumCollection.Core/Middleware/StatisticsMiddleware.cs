@@ -45,11 +45,7 @@ namespace DatumCollection.Core.Middleware
             try
             {
                 _logger.LogInformation("Task[{task}] reaches {middleware}", context.Task.Id, nameof(StatisticsMiddleware));
-                _logger.LogInformation("Task[{task}] statistics:\r\n [success]:[{success}] [fail]:[{fail}] [toal]:[{total}] \r\n completed in {elap} secs.",
-                    context.Task.Id, context.SpiderAtoms.Count, 0, context.SpiderAtoms.Count, context.Task.ElapsedTime.Seconds);
-                context.Task.FinishTime = DateTime.Now;
-                await _storage.Insert(new[] { context.Task });
-
+                await _statistics.Analyze(context);
             }
             catch (Exception e)
             {
