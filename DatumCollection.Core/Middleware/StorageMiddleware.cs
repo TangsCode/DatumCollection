@@ -23,20 +23,20 @@ namespace DatumCollection.Core.Middleware
         private readonly ILogger _logger;
         private readonly IMessageQueue _mq;
         private readonly SpiderClientConfiguration _config;
-        private readonly IDataStorage _storage;
+        private readonly IStorage _storage;
 
         public StorageMiddleware(
             PiplineDelegate next,
             IMessageQueue mq,
-            IDataStorage storage,
+            IStorage storage,
             SpiderClientConfiguration config,
             ILoggerFactory loggerFactory)
         {
             _next = next;
-            _config = config;
-            _storage = storage;
             _logger = loggerFactory.CreateLogger<StorageMiddleware>();
             _mq = mq;
+            _config = config;
+            _storage = storage;
         }
 
         public async Task InvokeAsync(SpiderContext context)
@@ -48,7 +48,7 @@ namespace DatumCollection.Core.Middleware
                  {
                      if (atom != null)
                      {
-                         await _storage.Insert(new[] { atom.Model });
+                         await _storage.Store(atom);
                      }
                  });
             }

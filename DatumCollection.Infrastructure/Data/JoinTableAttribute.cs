@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DatumCollection.Data.Attributes
+namespace DatumCollection.Infrastructure.Data
 {
     public class JoinTableAttribute : Attribute
     {

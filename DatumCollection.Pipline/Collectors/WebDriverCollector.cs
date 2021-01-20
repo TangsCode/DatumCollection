@@ -172,7 +172,7 @@ namespace DatumCollection.Pipline.Collector
                 wait.IgnoreExceptionTypes(new Type[] { typeof(NoSuchElementException) });
                 wait.Until((webdriver) =>
                 {
-                    var sel = atom.SpiderItem.SpiderConfig.GetTargetSelector().Result;
+                    var sel = atom.SpiderItem.GetTargetSelector().Result;
                     webdriver.FindElement(By.XPath(sel.Path));                    
                     return true;
                 }); 
@@ -184,6 +184,11 @@ namespace DatumCollection.Pipline.Collector
                 _logger.LogError(e, "collect error in {collector}", nameof(WebDriverCollector));
                 atom.Response.Success = false;
                 atom.Response.ErrorMsg = e.Message;
+                await _mq.PublishAsync(_config.TopicStatisticsFail, new Message
+                {
+                    MessageType = ErrorMessageType.CollectorError.ToString(),
+                    Data = atom
+                });
             }
             finally
             {

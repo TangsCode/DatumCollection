@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace DatumCollection.Data.Attributes
+namespace DatumCollection.Infrastructure.Data
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class SchemaAttribute : Attribute

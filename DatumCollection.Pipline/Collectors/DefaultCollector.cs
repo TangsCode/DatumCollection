@@ -51,6 +51,11 @@ namespace DatumCollection.Pipline.Collectors
                 _logger.LogError("collect data error with {collector}", nameof(DefaultCollector));
                 httpResponse.Success = false;
                 httpResponse.ErrorMsg = e.ToString();
+                await _mq.PublishAsync(_config.TopicStatisticsFail, new Message
+                {
+                    MessageType = ErrorMessageType.CollectorError.ToString(),
+                    Data = atom
+                });
             }
             finally
             {

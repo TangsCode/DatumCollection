@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
-namespace DatumCollection.Data.Attributes
+namespace DatumCollection.Infrastructure.Data
 {
     [AttributeUsage(AttributeTargets.Property)]
     public class ColumnAttribute : Attribute
@@ -24,6 +24,11 @@ namespace DatumCollection.Data.Attributes
 
         public bool IsUnqiue { get; set; } = false;
 
+        public ColumnAttribute(string name, string type)
+        {
+            Name = name;
+            Type = type;
+        }
         public PropertyInfo PropertyInfo { get; set; }
     }
 }

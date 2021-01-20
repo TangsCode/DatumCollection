@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace DatumCollection.Infrastructure.Abstraction
 {
-    public interface IStorage
+    /// <summary>
+    /// 统计数据接口
+    /// </summary>
+    public interface IStatistics
     {
-        /// <summary>
-        /// store entity in database
-        /// </summary>
-        /// <returns></returns>
-        Task Store(SpiderAtom atom);
+        Task Analyze(SpiderContext conetxt);
     }
 }

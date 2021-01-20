@@ -1,4 +1,4 @@
-﻿using DatumCollection.Data.Attributes;
+﻿using DatumCollection.Infrastructure.Data;
 using DatumCollection.Infrastructure.Selectors;
 using DatumCollection.Infrastructure.Spider;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace DatumCollection.Data.Entities
 {
     [Schema("Channel")]
-    public class Channel : SystemBase, ISpiderConfig
+    public class Channel : SystemBase
     {
         [Column(Name = "ChannelEnum", Type = "int")]
         public int ChannelEnum { get; set; }
@@ -40,44 +40,5 @@ namespace DatumCollection.Data.Entities
 
         [Column(Name = "CloseXPath")]
         public string CloseXPath { get; set; }
-
-        public async Task<IEnumerable<SelectorAttribute>> GetAllSelectors()
-        {
-            var selectors = new List<SelectorAttribute>();
-
-            try
-            {
-                var props = this.GetType().GetProperties();
-                foreach (var prop in props)
-                {
-                    if (prop.Name.ToLower().Contains(SelectorType.XPath.ToString().ToLower()))
-                    {
-                        selectors.Add(new SelectorAttribute
-                        {
-                            Type = SelectorType.XPath,
-                            Key = prop.Name.Replace(SelectorType.XPath.ToString(), ""),
-                            Path = prop.GetValue(this)?.ToString()
-                        });
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                
-            }
-
-            return selectors;
-        }
-
-        public Task<SelectorAttribute> GetTargetSelector()
-        {
-            var selector = new SelectorAttribute
-            {
-                Type = SelectorType.XPath,
-                Key = "Price",
-                Path = PriceXPath
-            };
-            return Task.FromResult(selector);
-        }
     }
 }

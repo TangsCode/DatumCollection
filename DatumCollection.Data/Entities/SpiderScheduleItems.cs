@@ -1,4 +1,5 @@
-﻿using DatumCollection.Data.Attributes;
+﻿using DatumCollection.Infrastructure.Data;
+using DatumCollection.Infrastructure.Spider;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Text;
 namespace DatumCollection.Data.Entities
 {
     [Schema("ScheduleItems")]
-    public class SpiderScheduleItems : SystemBase
+    public class SpiderScheduleItems<T> : SystemBase where T : ISpider
     {
         [Column(Name = "FK_SpiderSchedule_ID", Type = "uniqueidentifier")]
         public Guid FK_SpiderSchedule_ID { get; set; }
@@ -18,6 +19,7 @@ namespace DatumCollection.Data.Entities
         public SpiderScheduleSetting SpiderScheduleSetting { get; set; }
 
         [JoinTable("FK_SpiderItem_ID")]
-        public SpiderSource SpiderSource { get; set; }
+        public SpiderItem<T> SpiderItem { get; set; }
     }
+
 }

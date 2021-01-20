@@ -36,6 +36,12 @@ namespace DatumCollection.Core.Hosting
              store data into database or files 
              */
             app.UseStorage();
+
+            /*
+             * step four
+             * statistics for the lifetime of spider 
+             */
+            app.UseStatistics();
         }
 
         public IServiceProvider ConfigureServices(IServiceCollection services)
@@ -46,6 +52,8 @@ namespace DatumCollection.Core.Hosting
             services.AddSpiderCollector(
                 b => b.UseWebDriver());
             services.AddSpiderExtractor();
+            services.AddSpiderStorage();
+            services.AddSpiderStatistics();
             services.AddSpider<ElectronicCommerceWebsiteSpider>();
 
             return services.BuildServiceProvider();            

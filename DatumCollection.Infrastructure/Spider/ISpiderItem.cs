@@ -1,4 +1,5 @@
-﻿using DatumCollection.Infrastructure.Web;
+﻿using DatumCollection.Infrastructure.Selectors;
+using DatumCollection.Infrastructure.Web;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,10 +13,17 @@ namespace DatumCollection.Infrastructure.Spider
     public interface ISpiderItem
     {
         /// <summary>
-        /// spider specific ISpiderConfig
-        /// that generates selectors and determine the target on dynamic pages
+        /// get the target selector 
+        /// determine the timing to scrap when specific element is shown on the page
         /// </summary>
-        ISpiderConfig SpiderConfig { get; }
+        /// <returns></returns>
+        Task<SelectorAttribute> GetTargetSelector();
+
+        /// <summary>
+        /// get all spider selectors on the page
+        /// </summary>
+        /// <returns></returns>
+        Task<IEnumerable<SelectorAttribute>> GetAllSelectors();
 
         /// <summary>
         /// get the collections of spider element
@@ -25,16 +33,4 @@ namespace DatumCollection.Infrastructure.Spider
 
     }
 
-    public interface ISelector
-    {
-        Task<T> SelectAsync<T>(string path);
-    }
-
-    public class XPathSelector : ISelector
-    {
-        public Task<T> SelectAsync<T>(string path)
-        {
-            throw new NotImplementedException();
-        }
-    }
 }

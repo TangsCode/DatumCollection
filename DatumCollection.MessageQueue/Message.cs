@@ -32,4 +32,13 @@ namespace DatumCollection.MessageQueue
         [Description("爬虫请求")]
         SpiderRequest,
     }
+
+    public enum ErrorMessageType
+    {
+        SpiderTaskError,
+        SpiderAtomError,
+        CollectorError,
+        ExtractorError,
+        StorageError
+    }
 }

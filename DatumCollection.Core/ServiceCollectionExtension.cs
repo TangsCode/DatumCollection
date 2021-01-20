@@ -18,6 +18,8 @@ using DatumCollection.HostedServices.Schedule;
 using DatumCollection.MessageQueue.EventBus;
 using DatumCollection.Pipline.Extractors;
 using DatumCollection.Infrastructure.Spider;
+using DatumCollection.Pipline.Storage;
+using DatumCollection.Pipline.Statistics;
 
 namespace DatumCollection.Core
 {
@@ -72,12 +74,14 @@ namespace DatumCollection.Core
         }
         #endregion
 
-        #region Specified spider type(shcekoing schedule and run as hosted serice)
-        public static IServiceCollection AddSpider<T>(this IServiceCollection services) where T: ISpider
+        #region specify spider type(checking schedule and run as hosted service)
+        public static IServiceCollection AddSpider<T>(this IServiceCollection services) where T:class, ISpider
         {
             services.AddHostedService<SpiderScheduleHostedService<T>>();
+            //services.AddSingleton<ISpider, T>();
             return services;
         }
+
         #endregion
 
         #region Spider Collector
@@ -105,6 +109,30 @@ namespace DatumCollection.Core
             services.AddSingleton<IExtractor, DefaultExtractor>();
             var builder = new PiplineServiceBuilder(services);
             action?.Invoke(builder);
+
+            return services;
+        }
+        #endregion
+
+        #region Spider Storage
+        public static IServiceCollection AddSpiderStorage(this IServiceCollection services,
+            Action<PiplineServiceBuilder> action = null)
+        {
+            services.AddSingleton<IStorage, DefaultStorage>();
+            var builder = new PiplineServiceBuilder(services);
+            action?.Invoke(builder);
+
+            return services;
+        }
+        #endregion
+
+        #region Statistics 
+        public static IServiceCollection AddSpiderStatistics(this IServiceCollection services,
+            Action<PiplineServiceBuilder> action = null)
+        {
+            services.AddSingleton<IStatistics, DefaultStatistics>();
+            var builder = new PiplineServiceBuilder(services);
+            action?.Invoke(builder); 
 
             return services;
         }

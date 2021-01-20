@@ -1,5 +1,4 @@
-﻿using DatumCollection.Data.Attributes;
-using DatumCollection.Data.Model;
+﻿using DatumCollection.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,5 +26,5 @@ namespace DatumCollection.Data
 
         public DatabaseMetadata MetaData { get; set; }
 
-    }
+    }    
 }

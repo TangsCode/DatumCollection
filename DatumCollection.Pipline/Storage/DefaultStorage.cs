@@ -1,48 +1,50 @@
 ﻿using DatumCollection.Configuration;
-using DatumCollection.Infrastructure.Abstraction;
-using DatumCollection.Infrastructure.Spider;
-using DatumCollection.Infrastructure.Web;
 using DatumCollection.MessageQueue;
-using DatumCollection.Utility.HtmlParser;
+using DatumCollection.Infrastructure.Abstraction;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using DatumCollection.Infrastructure.Spider;
+using DatumCollection.Data;
 
-namespace DatumCollection.Pipline.Extractors
+namespace DatumCollection.Pipline.Storage
 {
-    public class DefaultExtractor : IExtractor
+    public class DefaultStorage : IStorage
     {
-        private readonly ILogger<DefaultExtractor> _logger;
+        private readonly ILogger<DefaultStorage> _logger;
         private readonly IMessageQueue _mq;
         private readonly SpiderClientConfiguration _config;
-        
-        public DefaultExtractor(
-            ILogger<DefaultExtractor> logger,
+        private readonly IDataStorage _storage;
+
+        public DefaultStorage(
+            ILogger<DefaultStorage> logger,
             IMessageQueue mq,
-            SpiderClientConfiguration config)
+            SpiderClientConfiguration config,
+            IDataStorage storage)
         {
             _logger = logger;
             _mq = mq;
             _config = config;
+            _storage = storage;
         }
 
-        public async Task ExtractAsync(SpiderAtom atom)
+        public async Task Store(SpiderAtom atom)
         {
             try
             {
-                atom.Model = await atom.SpiderItem.Spider(atom);
+                await _storage.Insert(new[] { atom.Model });
             }
             catch (Exception e)
             {
                 _logger.LogError(e.ToString());
                 await _mq.PublishAsync(_config.TopicStatisticsFail, new Message
                 {
-                    MessageType = ErrorMessageType.CollectorError.ToString(),
+                    MessageType = ErrorMessageType.StorageError.ToString(),
                     Data = atom
                 });
-            }            
+            }
         }
     }
 }

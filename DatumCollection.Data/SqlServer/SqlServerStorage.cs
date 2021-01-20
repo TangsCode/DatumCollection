@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
-using DatumCollection.Data.Attributes;
+using DatumCollection.Infrastructure.Data;
 using System.Reflection;
 
 namespace DatumCollection.Data.SqlServer
@@ -57,13 +57,6 @@ namespace DatumCollection.Data.SqlServer
                                     sql = $@"insert into {context.Metadata.Schema.TableName}
                                             ({string.Join(",", context.Metadata.Columns.Select(c => c.Name).ToArray())}) values
                                             ({string.Join(",", context.Metadata.Columns.Select(c => "@" + c.Name).ToArray())})";
-                                    //if (context.Metadata.RelationObjects.Any())
-                                    //{
-                                    //    foreach (var rb in context.Metadata.RelationObjects)
-                                    //    {
-                                            
-                                    //    }
-                                    //}
                                 }
                                 break;
                             case Operation.InsertOrUpdate:
@@ -185,7 +178,8 @@ namespace DatumCollection.Data.SqlServer
             Func<TFirst, TSecond, TFirst> map,
             Func<TFirst, bool> condition = null) where TFirst : class where TSecond: class
         {
-            var metadata = await GetMetaData<TFirst>();            
+            var metadata = await GetMetaData<TFirst>();
+            var context = new DataStorageContext(metadata);
             IDbConnection conn = GetDbConnection();
             using (conn)
             {
@@ -195,28 +189,20 @@ namespace DatumCollection.Data.SqlServer
                 {
                     transaction = conn.BeginTransaction();
                     StringBuilder sql = new StringBuilder();
-                    var aliasName = metadata.Schema.TableName.ToLower().FirstOrDefault().ToString();
-                    sql.Append($@"select * from {metadata.Schema.TableName} {aliasName}");
-                    StringBuilder column = new StringBuilder();
-                    column.Append(string.Join(",", metadata.Columns.Select(p => string.Concat(aliasName, ".", p.Name)).ToArray()));
-                    foreach (var relation in metadata.RelationObjects)
+                    sql.AppendLine(string.Format("select * from {0} {1}", context.MainTable.TableName, context.MainTable.AliasName));
+                    foreach (var relation in context.JoinRelations)
                     {
-                        var relationAliasName = relation.MetaData.Schema.TableName.ToLower().FirstOrDefault(c => c.ToString() != aliasName).ToString();
-                        column.Append("," + string.Join(",", relation.MetaData.Columns.Select(p => string.Concat(relationAliasName, ".", p.Name)).ToArray()));
-                        sql.AppendLine($" {relation.JoinTable.JoinType.ToString().ToLower()} join {relation.MetaData.Schema.TableName} {relationAliasName} on {aliasName}.{relation.JoinTable.ProviderKey}={relationAliasName}.{relation.JoinTable.ForeignKey}");
+                        sql.AppendLine($" {relation.JoinType.ToString().ToLower()} join {relation.Right.TableName} {relation.Right.AliasName} on {relation.Right.AliasName}.{relation.Right.JoinKey}={relation.Left.AliasName}.{relation.Left.JoinKey}");
                     }
-                    sql.Replace("*", column.ToString());
-                    result = await conn.QueryAsync<TFirst>(sql.ToString(), map, transaction: transaction);
+                    result = await conn.QueryAsync(sql.ToString(), map, transaction: transaction);
                     if (condition != null)
                     {
                         result = result.Where(d => condition(d));
-                    }                    
-                    //transaction?.Commit();
+                    }
                 }
                 catch (Exception e)
                 {
                     _logger?.LogError(e.ToString());
-                    transaction?.Rollback();
                 }
                 return result;
             }
@@ -249,7 +235,6 @@ namespace DatumCollection.Data.SqlServer
                     }
                     sql.Replace("*", column.ToString());
                     result = await conn.QueryAsync<T>(sql.ToString(), null, transaction);                    
-                    //transaction?.Commit();
                 }
                 catch (Exception e)
                 {
@@ -296,7 +281,8 @@ namespace DatumCollection.Data.SqlServer
             var metadata = new DatabaseMetadata();
             var classAttribute = System.Attribute.GetCustomAttributes(type);
             metadata.Schema = (SchemaAttribute)classAttribute.FirstOrDefault(a => a.GetType() == typeof(SchemaAttribute));
-            foreach (var property in type.GetProperties())
+            var properties = type.GetProperties().OrderByDescending(p => p.Name.ToLower() == "id");
+            foreach (var property in properties)
             {
                 if (property.GetCustomAttribute(typeof(ColumnAttribute), false) != null)
                 {
@@ -373,6 +359,20 @@ namespace DatumCollection.Data.SqlServer
             where TThird : class
         {
             var metadata = await GetMetaData<TFirst>();
+            var metadata2 = await GetMetaData<TSecond>();
+            var metadata3 = await GetMetaData<TThird>();
+            foreach (var item in metadata3.RelationObjects)
+            {
+                if(item.MetaData.Schema.TableName == metadata.Schema.TableName)
+                {
+                    metadata.RelationObjects.Add(new RelationObject
+                    {
+                        JoinTable = new JoinTableAttribute(item.JoinTable.ForeignKey, item.JoinTable.ProviderKey, item.JoinTable.JoinType),
+                        MetaData = metadata3
+                    });
+                }
+            }
+            var context = new DataStorageContext(metadata);
             IDbConnection conn = GetDbConnection();
             using (conn)
             {
@@ -382,23 +382,16 @@ namespace DatumCollection.Data.SqlServer
                 {
                     transaction = conn.BeginTransaction();
                     StringBuilder sql = new StringBuilder();
-                    var aliasName = metadata.Schema.TableName.ToLower().FirstOrDefault().ToString();
-                    sql.Append($@"select * from {metadata.Schema.TableName} {aliasName}");
-                    StringBuilder column = new StringBuilder();
-                    column.Append(string.Join(",", metadata.Columns.Select(p => string.Concat(aliasName, ".", p.Name)).ToArray()));
-                    foreach (var relation in metadata.RelationObjects)
+                    sql.AppendLine(string.Format("select * from {0} {1}", context.MainTable.TableName, context.MainTable.AliasName));
+                    foreach (var relation in context.JoinRelations)
                     {
-                        var relationAliasName = relation.MetaData.Schema.TableName.ToLower().FirstOrDefault(c => c.ToString() != aliasName).ToString();
-                        column.Append("," + string.Join(",", relation.MetaData.Columns.Select(p => string.Concat(relationAliasName, ".", p.Name)).ToArray()));
-                        sql.AppendLine($" {relation.JoinTable.JoinType.ToString().ToLower()} join {relation.MetaData.Schema.TableName} {relationAliasName} on {aliasName}.{relation.JoinTable.ProviderKey}={relationAliasName}.{relation.JoinTable.ForeignKey}");
-                    }
-                    sql.Replace("*", column.ToString());
+                        sql.AppendLine($" {relation.JoinType.ToString().ToLower()} join {relation.Right.TableName} {relation.Right.AliasName} on {relation.Right.AliasName}.{relation.Right.JoinKey}={relation.Left.AliasName}.{relation.Left.JoinKey}");
+                    }                    
                     result = await conn.QueryAsync(sql.ToString(), map, transaction: transaction);
                     if (condition != null)
                     {
                         result = result.Where(d => condition(d));
                     }
-                    //transaction?.Commit();
                 }
                 catch (Exception e)
                 {
@@ -408,5 +401,7 @@ namespace DatumCollection.Data.SqlServer
                 return result;
             }
         }
+         
+        
     }
 }

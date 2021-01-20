@@ -1,4 +1,4 @@
-﻿using DatumCollection.Data.Attributes;
+﻿using DatumCollection.Infrastructure.Data;
 using DatumCollection.Infrastructure.Selectors;
 using DatumCollection.Infrastructure.Spider;
 using DatumCollection.Infrastructure.Web;
@@ -14,6 +14,9 @@ namespace DatumCollection.Data.Entities
     [Schema("SpiderItem")]
     public class SpiderSource : SystemBase
     {
+        [Column(Name ="SkuName")]
+        public string SkuName { get; set; }
+
         [Column(Name = "Url", Type = "nvarchar")]
         public string Url { get; set; }
 
@@ -36,14 +39,51 @@ namespace DatumCollection.Data.Entities
 
     public class SpiderItem<T>:SpiderSource, ISpiderItem where T : ISpider
     {
-        public ISpiderConfig SpiderConfig { get { return Channel; } }
+        public Task<IEnumerable<SelectorAttribute>> GetAllSelectors()
+        {
+            IEnumerable<SelectorAttribute> selectors = new List<SelectorAttribute>();
+            var config = Channel;
+            try
+            {
+                var props = config.GetType().GetProperties();
+                foreach (var prop in props)
+                {
+                    if (prop.Name.ToLower().Contains(SelectorType.XPath.ToString().ToLower()))
+                    {
+                        selectors.Append(new SelectorAttribute
+                        {
+                            Type = SelectorType.XPath,
+                            Key = prop.Name.Replace(SelectorType.XPath.ToString(), ""),
+                            Path = prop.GetValue(config)?.ToString()
+                        });
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+            return Task.FromResult(selectors);
+        }
+
+        public Task<SelectorAttribute> GetTargetSelector()
+        {
+            var selector = new SelectorAttribute
+            {
+                Type = SelectorType.XPath,
+                Key = "Price",
+                Path = Channel.PriceXPath
+            };
+            return Task.FromResult(selector);
+        }
 
         public async Task<ISpider> Spider(SpiderAtom atom)
         {
             try
             {
                 var result = System.Activator.CreateInstance<T>();
-                var selectors = await SpiderConfig.GetAllSelectors();
+                var selectors = await GetAllSelectors();
                 var props = typeof(T).GetProperties();
                 
                 foreach (var selector in selectors)

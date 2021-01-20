@@ -1,4 +1,4 @@
-﻿using DatumCollection.Data.Attributes;
+﻿using DatumCollection.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +11,7 @@ namespace DatumCollection.Data.Entities
     public class SystemBase
     {
         [Column(IsPrimaryKey = true, Name = "ID", Type = "uniqueidentifier")]
-        public Guid ID { get; set; }
+        public Guid? ID { get; set; }
         [Column(Name = "IsValid", Type = "bit")]
         public bool IsValid { get; set; }
         [Column(Name = "IsDelete", Type = "bit")]

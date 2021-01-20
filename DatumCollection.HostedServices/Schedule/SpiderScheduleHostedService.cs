@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DatumCollection.HostedServices.Schedule
 {
-    public class SpiderScheduleHostedService<T> : IHostedService where T: ISpider
+    public class SpiderScheduleHostedService<T> : IHostedService where T : ISpider
     {
         private readonly ILogger<SpiderScheduleHostedService<T>> _logger;
         private readonly IMessageQueue _mq;
@@ -33,7 +33,7 @@ namespace DatumCollection.HostedServices.Schedule
             _mq = mq;
             _storage = storage;
             _config = config;
-            
+
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -60,15 +60,16 @@ namespace DatumCollection.HostedServices.Schedule
                     _logger.LogInformation("schedules retriving, count {count}", schedules.Count());
                     Parallel.ForEach(schedules, async schedule =>
                     {
-                        var items = await _storage.Query<SpiderItem<T>, Channel, SpiderScheduleItems>(
-                            (item, channel, scheduleitem) =>
+                        var scheduleItems = await _storage.Query<SpiderScheduleItems<T>, SpiderItem<T>, Channel >(
+                            (scheduleitem, item, channel ) =>
                             {
                                 item.Channel = channel;
-                                scheduleitem.SpiderSource = item;
+                                scheduleitem.SpiderItem = item;
                                 scheduleitem.SpiderScheduleSetting = schedule;
-                                return item;
+                                return scheduleitem;
                             }
                             );
+                        var items = scheduleItems.Select(si => si.SpiderItem);
                         if (items.Any())
                         {
                             var spiderContext = new SpiderContext();

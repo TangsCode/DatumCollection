@@ -1,4 +1,4 @@
-﻿using DatumCollection.Data.Attributes;
+﻿using DatumCollection.Infrastructure.Data;
 using DatumCollection.Infrastructure.Spider;
 using System;
 using System.Collections.Generic;
@@ -13,11 +13,6 @@ namespace DatumCollection.Data.Entities
     [Schema("ElectronicCommerceWebsite")]
     public class ElectronicCommerceWebsiteSpider : SystemBase, ISpider
     {
-        [Column(Name = "FK_SpiderItem_ID", Type = "uniqueidentifier")]
-        public Guid FK_SpiderItem_ID { get; set; }
-
-        [JoinTable("FK_SpiderItem_ID")]
-        public SpiderSource SpiderSource { get; set; }
 
         [Column(Name = "Price", Type = "decimal", Precision = 10, Scale = 2)]
         public decimal Price { get; set; }
@@ -38,7 +33,13 @@ namespace DatumCollection.Data.Entities
         public string Coupon { get; set; }
 
         [Column(Name = "ImageText")]
-        public string ImageText { get; set; }        
-        
+        public string ImageText { get; set; }
+
+        [Column(Name = "FK_SpiderItem_ID", Type = "uniqueidentifier")]
+        public Guid FK_SpiderItem_ID { get; set; }
+
+        [JoinTable("FK_SpiderItem_ID")]
+        public SpiderSource SpiderSource { get; set; }
+
     }
 }
