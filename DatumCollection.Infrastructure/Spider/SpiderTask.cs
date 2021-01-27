@@ -17,7 +17,7 @@ namespace DatumCollection.Infrastructure.Spider
         [Column(Name = "FinishTime", Type = "datetime")]
         public DateTime FinishTime { get; set; }
 
-        [Column(Name = "ElapsedTime", Type = "double")]
+        [Column(Name = "ElapsedTime", Type = "float")]
         public double ElapsedTime { get { return FinishTime == null ? 0 : (FinishTime - BeginTime).TotalSeconds; } }
 
         public SpiderTask()

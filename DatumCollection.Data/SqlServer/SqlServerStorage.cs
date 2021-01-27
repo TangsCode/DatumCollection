@@ -108,6 +108,8 @@ namespace DatumCollection.Data.SqlServer
                 {
                     _logger.LogError(e.ToString());
                     transaction?.Rollback();
+                    result.Success = false;
+                    result.ErrorMsg = e.Message;
                 }
             }
 
@@ -270,9 +272,57 @@ namespace DatumCollection.Data.SqlServer
             catch (Exception e)
             {
                 _logger.LogError("error occured in inserting entities with {storage}\r\nmessage:{error}", nameof(SqlServerStorage), e.Message);
+                result.Success = false;
             }
             return result;
         }
+
+        public async Task<DbExecutionResult> Update<T>(T entity)
+        {
+            var result = new DbExecutionResult();
+            try
+            {
+                var metadata = await GetMetaData<T>(entity.GetType());
+                var context = new DataStorageContext
+                {
+                    Metadata = metadata,
+                    Operation = Operation.Update,
+                    Parameters = entity
+                };
+
+                result = await ExecuteAsync(context);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("error occured in updating entity with {storage}\r\nmessage:{error}", nameof(SqlServerStorage), e.Message);
+                result.Success = false;
+            }
+            return result;
+        }
+
+        public async Task<DbExecutionResult> Delete<T>(T entity)
+        {
+            var result = new DbExecutionResult();
+            try
+            {
+                var metadata = await GetMetaData<T>(entity.GetType());
+                var context = new DataStorageContext
+                {
+                    Metadata = metadata,
+                    Operation = Operation.Delete,
+                    Parameters = entity
+                };
+
+                result = await ExecuteAsync(context);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("error occured in deleting entity with {storage}\r\nmessage:{error}", nameof(SqlServerStorage), e.Message);
+                result.Success = false;
+            }
+            return result;
+        }
+
         #endregion
 
         private async Task<DatabaseMetadata> GetMetaData<T>(Type specifiedType = null)
@@ -320,6 +370,7 @@ namespace DatumCollection.Data.SqlServer
                             columnSql.AppendLine($",[{column.Name}] {column.Type}({column.Length}) {(column.Required ? "not" : "")} null");
                             break;
                         case "int":
+                        case "float":
                         case "bit":
                         case "date":
                         case "time":
@@ -401,7 +452,7 @@ namespace DatumCollection.Data.SqlServer
                 return result;
             }
         }
-         
+
         
     }
 }

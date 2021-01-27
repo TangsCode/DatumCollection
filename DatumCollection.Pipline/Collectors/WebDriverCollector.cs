@@ -34,6 +34,9 @@ namespace DatumCollection.Pipline.Collector
         private DriverOptions _driverOptions;
 
         private Browser _browser;
+        private bool _initialized;
+
+        private IEnumerable<int> _pidsBefore;
 
         private string WebDriverExePath => _config.WebDriverExecutetableFilePath;
         private string ImagePath => _config.ImageDownloadPath;
@@ -47,10 +50,10 @@ namespace DatumCollection.Pipline.Collector
             _mq = mq;
             _config = config;
 
-            Initialize();
+            _pidsBefore = Process.GetProcessesByName("chromedriver").Concat(Process.GetProcessesByName("chrome")).Select(p => p.Id);
         }
 
-        private void Initialize()
+        private async Task InitializeAsync()
         {
             if (!Directory.Exists(ImagePath))
             {
@@ -94,9 +97,11 @@ namespace DatumCollection.Pipline.Collector
                         chromeOptions.AddArguments(new[] { "disable-infobars", "headless", "silent", "log-level=3", "no-sandbox", "disable-dev-shm-usage" });
                         _driverOptions = chromeOptions;
                         driver = new ChromeDriver((ChromeDriverService)_driverService, chromeOptions, TimeSpan.FromSeconds(60));
-                        driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);
-                        Task.Factory.StartNew(() =>
+                        driver.Manage().Window.Size = new System.Drawing.Size(1296, 696);                                                
+                        await Task.Factory.StartNew(() =>
                         {
+                            var process = new Process();
+                            
                             while (_drivers.Count < _config.WebDriverProcessCount)
                             {
                                 var webdriver = new ChromeDriver((ChromeDriverService)_driverService, chromeOptions, TimeSpan.FromSeconds(_config.WebDriverTimeoutInSeconds));
@@ -142,24 +147,29 @@ namespace DatumCollection.Pipline.Collector
                         break;
                     }
             }
+            _initialized = true;
         }
         
         private Task<ManagedWebDriver> GetWebDriverInstance()
         {
-            var driver = _drivers.FirstOrDefault(md => !md.IsInUse);
+            var driver = _drivers.FirstOrDefault(md => !md.Used);
             while (driver == null)
             {                
                 _logger.LogInformation("wating one second to get web driver instance");
                 Task.Delay(10000).Wait();
-                driver = _drivers.FirstOrDefault(md => !md.IsInUse);
+                driver = _drivers.FirstOrDefault(md => !md.Used);
             }
 
-            driver.IsInUse = true;
+            driver.Used = true;
             return Task.FromResult(driver);            
         }
 
         public async Task CollectAsync(SpiderAtom atom)
         {
+            if (!_initialized)
+            {
+                await InitializeAsync();
+            }
             atom.Response = new HttpResponse { Success = true };
             ManagedWebDriver md = null;
             try
@@ -192,7 +202,7 @@ namespace DatumCollection.Pipline.Collector
             }
             finally
             {
-                md.IsInUse = false;
+                md.Used = false;
             }
         }
 
@@ -205,6 +215,14 @@ namespace DatumCollection.Pipline.Collector
             }
 
             _driverService?.Dispose();
+            var pidsAfter = Process.GetProcessesByName("chromedriver").Concat(Process.GetProcessesByName("chrome")).Select(p => p.Id);
+            var webdriverPids = pidsAfter.Except(_pidsBefore);
+            foreach (var pid in webdriverPids)
+            {
+                _logger.LogInformation("Killing pid: {0}", pid);
+                Process.GetProcessById(pid).Kill();
+            }
+
         }
     }
 
@@ -213,11 +231,11 @@ namespace DatumCollection.Pipline.Collector
         public ManagedWebDriver(IWebDriver driver)
         {
             WebDriver = driver;
-            IsInUse = false;
+            Used = false;
         }
 
         public IWebDriver WebDriver { get; }
 
-        public bool IsInUse { get; set; }
+        public bool Used { get; set; }
     }
 }

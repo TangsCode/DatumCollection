@@ -17,7 +17,7 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "IsDelete", Type = "bit")]
         public bool IsDelete { get; set; }
         [Column(Name = "CreateTime", Type = "datetime")]
-        public DateTime? CreateTime { get; set; }
+        public DateTime CreateTime { get; set; }
         [Column(Name = "ModifyTime", Type = "datetime")]
         public DateTime? ModifyTime { get; set; }
         [Column(Name = "FK_SystemUser_Create_ID", Type = "uniqueidentifier")]

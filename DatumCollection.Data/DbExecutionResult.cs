@@ -12,14 +12,24 @@ namespace DatumCollection.Data
     {
         public DbExecutionResult()
         {
-            ErrorCode = 0;
+            Success = true;
         }
+
+        /// <summary>
+        /// 是否成功
+        /// </summary>
+        public bool Success { get; set; }
+
+        /// <summary>
+        /// 执行错误的返回信息
+        /// </summary>
+        public string ErrorMsg { get; set; }
 
         /// <summary>
         /// 错误代码
         /// 默认返回0(成功)
         /// </summary>
-        public int ErrorCode { get; set; }
+        public int ErrorCode { get; set; } = 0;
 
         /// <summary>
         /// 受影响行数

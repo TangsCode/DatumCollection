@@ -100,6 +100,7 @@ namespace DatumCollection.Data.MySql
                 {
                     _logger.LogError(e.ToString());
                     transaction?.Rollback();
+                    result.Success = false;
                 }
             }
 
@@ -173,10 +174,21 @@ namespace DatumCollection.Data.MySql
             throw new NotImplementedException();
         }
 
+
         public Task<IEnumerable<TFirst>> Query<TFirst, TSecond, TThird>(Func<TFirst, TSecond, TThird, TFirst> map, Func<TFirst, bool> condition = null)
             where TFirst : class
             where TSecond : class
             where TThird : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DbExecutionResult> Update<T>(T entity)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DbExecutionResult> Delete<T>(T entity)
         {
             throw new NotImplementedException();
         }

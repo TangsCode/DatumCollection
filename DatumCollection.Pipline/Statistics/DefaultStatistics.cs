@@ -38,10 +38,11 @@ namespace DatumCollection.Pipline.Statistics
         {
             try
             {
-                _logger.LogInformation("Task[{task}] statistics:\r\n success:{success} fail:{fail} toal:{total} completed in {elap} secs.",
-                    context.Task.Id, context.SpiderAtoms.Count(a => a.SpiderStatus == SpiderStatus.OK), context.SpiderAtoms.Count(a => a.SpiderStatus != SpiderStatus.OK), context.SpiderAtoms.Count, context.Task.ElapsedTime);
                 context.Task.FinishTime = DateTime.Now;
                 await _storage.Insert(new[] { context.Task });
+                _logger.LogInformation("Task[{task}] statistics:\r\n success:{success} fail:{fail} toal:{total} completed in {elap} secs.",
+                    context.Task.Id, context.SpiderAtoms.Count(a => a.SpiderStatus == SpiderStatus.OK), context.SpiderAtoms.Count(a => a.SpiderStatus != SpiderStatus.OK), context.SpiderAtoms.Count, context.Task.ElapsedTime);
+                
             }
             catch (Exception e)
             {

@@ -93,6 +93,22 @@ namespace DatumCollection.Data
         /// <returns></returns>
         Task<DbExecutionResult> Insert<T>(IEnumerable<T> entity);
 
+        /// <summary>
+        /// 更新实体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<DbExecutionResult> Update<T>(T entity);
+
+        /// <summary>
+        /// 删除实体
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        Task<DbExecutionResult> Delete<T>(T entity);
+
         #endregion
         /// <summary>
         /// 获取数据库连接
