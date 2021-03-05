@@ -15,7 +15,6 @@ namespace DatumCollection.Data
         /// <para>数据增删改</para>
         ///  根据提供的数据存储上下文<see cref="DataStorageContext" />推断Sql语句,
         ///  执行Sql语句返回结果<seealso cref="DbExecutionResult"/>
-        ///  <para>成功则<see cref="DbExecutionResult.ErrorCode"/> = 0, 失败则返回对应的<see cref="ErrorCode"/></para>
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
@@ -27,43 +26,51 @@ namespace DatumCollection.Data
         /// <typeparam name="T"></typeparam>
         /// <param name="context"></param>
         /// <returns></returns>
-        Task<T> ExecuteScalarAsync<T>(DataStorageContext context);
-         
-        /// <summary>
-        /// <para>数据查询</para>
-        /// <para>优先级：<see cref="DataStorageContext.SqlStatement"/> > <see cref="DataStorageContext.Parameters"/></para>
-        /// <para>根据上下文<see cref="DataStorageContext.Metadata"/>查询全部字段</para>        
-        /// 根据上下文查询所有满足<see cref="DataStorageContext.Parameters"/>筛选条件的数据
-        /// </summary>
-        /// <typeparam name="T">strong type</typeparam>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        Task<IEnumerable<T>> Query<T>(DataStorageContext context);
+        Task<T> ExecuteScalarAsync<T>(DataStorageContext context);        
 
         /// <summary>
-        /// 查询数据
-        /// 根据实体<typeparamref name="T"/>查询,反射获取架构和字段信息
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        Task<IEnumerable<T>> Query<T>() where T : class;
-
-        /// <summary>
-        /// 查询数据
-        /// 根据实体<typeparamref name="T"/>查询，反射获取数据表架构和字段信息
+        /// 查询实体
+        /// 反射实体<typeparamref name="T"/>获取数据表架构和字段信息
         /// 根据<paramref name="condition"/>筛选数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="condition">数据满足条件</param>
         /// <returns></returns>
         Task<IEnumerable<T>> Query<T>(Func<T, bool> condition) where T : class;
+        
+        /// <summary>
+        /// 递归查询
+        /// 反射实体<typeparamref name="T"/>获取数据表架构和字段属性，
+        /// 属性为实体则继续递归查询，直至所有实体属性全部查询完毕。
+        /// 根据<paramref name="condition"/>筛选数据
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="condition">数据满足条件</param>
+        /// <returns></returns>
+        Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 1) where T: class;
+
+        /// <summary>
+        /// 递归查询
+        /// 根据实体类型对class属性递归查询，直至所有实体属性全部查询完毕或达到递归深度。
+        /// </summary>
+        /// <param name="type">实体类型</param>
+        /// <param name="param">查询参数</param>
+        /// <param name="depth">递归深度</param>
+        /// <returns></returns>
+        Task<IEnumerable<object>> RecursiveQueryWithType(Type type, object param = null, int depth = 1);
+
+        /// <summary>
+        /// 查询动态列表
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        Task<IEnumerable<dynamic>> QueryDynamicList<T>();
 
         /// <summary>        
-        /// 关联实体查询，通过外键关联查询实体属性
+        /// 关联实体查询（实体层级2）
         /// </summary>
-        /// <typeparam name="TFirst">实体A</typeparam>
-        /// <typeparam name="TSecond">实体B</typeparam>
+        /// <typeparam name="TFirst">实体1</typeparam>
+        /// <typeparam name="TSecond">实体2</typeparam>
         /// <param name="map">实体关系</param>
         /// <param name="condition">条件筛选</param>
         /// <returns></returns>
@@ -72,7 +79,7 @@ namespace DatumCollection.Data
             Func<TFirst, bool> condition = null) where TFirst : class where TSecond : class;
 
         /// <summary>
-        /// 关联查询
+        /// 关联实体查询（实体层级3）
         /// </summary>
         /// <typeparam name="TFirst"></typeparam>
         /// <typeparam name="TSecond"></typeparam>
@@ -110,6 +117,7 @@ namespace DatumCollection.Data
         Task<DbExecutionResult> Delete<T>(T entity);
 
         #endregion
+
         /// <summary>
         /// 获取数据库连接
         /// </summary>

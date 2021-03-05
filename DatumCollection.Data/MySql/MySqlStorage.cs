@@ -192,5 +192,20 @@ namespace DatumCollection.Data.MySql
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<dynamic>> QueryDynamicList<T>()
+        {
+            throw new NotImplementedException();
+        }
+         
+        public Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 1) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<object>> RecursiveQueryWithType(Type type, object param = null, int depth = 1)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

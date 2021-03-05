@@ -73,7 +73,8 @@ namespace DatumCollection.Data
                     {
                         Left = left,
                         Right = right,
-                        JoinType = item.JoinTable.JoinType
+                        JoinType = item.JoinTable.JoinType,
+                        RelationMetadata = item.MetaData
                     };
                     if (!TableAliassNameMappings.ContainsKey(right.AliasName))
                     {
@@ -103,6 +104,8 @@ namespace DatumCollection.Data
         public JoinTable Right { get; set; }
 
         public JoinType JoinType { get; set; }
+
+        public DatabaseMetadata RelationMetadata { get; set; }
     }
 
     public class JoinTable : TableInfo

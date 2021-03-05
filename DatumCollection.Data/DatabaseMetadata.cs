@@ -1,6 +1,7 @@
 ﻿using DatumCollection.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace DatumCollection.Data
@@ -22,6 +23,8 @@ namespace DatumCollection.Data
 
     public class RelationObject
     {
+        public PropertyInfo RelationProperty { get; set; }
+
         public JoinTableAttribute JoinTable { get; set; }
 
         public DatabaseMetadata MetaData { get; set; }
