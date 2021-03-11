@@ -1,0 +1,117 @@
+<mat-form-field>
+  <mat-label>Filter</mat-label>
+  <input matInput (keyup)="applyFilter($event)" placeholder="" #input>
+</mat-form-field>
+
+<div class="mat-elevation-z8">
+  <div style="float:right">
+    <button mat-raised-button color="accent" (click)="add()">New</button>
+  </div>
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <!-- Checkbox Column -->
+    <ng-container matColumnDef="select">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox (change)="$event ? masterToggle() : null"
+                      [checked]="selection.hasValue() && isAllSelected()"
+                      [indeterminate]="selection.hasValue() && !isAllSelected()">
+        </mat-checkbox>
+      </th>
+      <td mat-cell *matCellDef="let row">
+        <mat-checkbox (click)="$event.stopPropagation()"
+                      (change)="$event ? selection.toggle(row) : null"
+                      [checked]="selection.isSelected(row)">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="isEnabled">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> IsEnabled </th>
+      <td mat-cell *matCellDef="let row">
+        {{formatterIsEnabled(row.isEnabled)}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="startDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> StartDate </th>
+      <td mat-cell *matCellDef="let row">
+        {{formatterDate(row.startDate)}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="endDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> EndDate </th>
+      <td mat-cell *matCellDef="let row">
+        {{formatterDate(row.endDate)}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="startTime">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> startTime </th>
+      <td mat-cell *matCellDef="let row">
+        {{formatterTime(row.startTime)}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="endTime">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> endTime </th>
+      <td mat-cell *matCellDef="let row">
+        {{formatterTime(row.endTime)}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="interval">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> interval </th>
+      <td mat-cell *matCellDef="let row">
+        {{row.interval}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="spiderFrequency">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> spiderFrequency </th>
+      <td mat-cell *matCellDef="let row">
+        {{formatterFrequency(row.spiderFrequency)}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="scheduleDayOfWeek">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> scheduleDayOfWeek </th>
+      <td mat-cell *matCellDef="let row">
+        {{row.scheduleDayOfWeek}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="scheduleMonthOfYear">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> scheduleMonthOfYear </th>
+      <td mat-cell *matCellDef="let row">
+        {{row.scheduleMonthOfYear}}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createTime">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> createTime </th>
+      <td mat-cell *matCellDef="let row"> {{row.createTime | date:"yyyy-MM-dd HH:mm"}} </td>
+    </ng-container>
+
+    <ng-container [matColumnDef]="'actions'">
+      <th mat-header-cell *matHeaderCellDef> actions </th>
+      <td mat-cell *matCellDef="let row">
+        <button mat-icon-button (click)="edit(row['id'])">
+          <mat-icon mat-icon-button color='primary'>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="delete(row)">
+          <mat-icon mat-icon-button color="warn">delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    <!-- Row shown when there is no matching data. -->
+    <tr class="mat-row" *matNoDataRow>
+      <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+    </tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[ 10, 25, 100]"></mat-paginator>
+</div>

@@ -1,0 +1,81 @@
+<h1 mat-dialog-title>Edit Spider Item</h1>
+
+<div mat-dialog-content>
+  <form [formGroup]="formInstance">
+    <div>
+      <mat-form-field class="fullWidth" appearance="outline">
+        <mat-label>Sku Name *</mat-label>
+        <input matInput type="text"
+               name="skuName" formControlName="skuName">
+        <mat-error *ngIf="
+        formInstance.controls['skuName']?.errors?.required">field required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="">
+      <mat-form-field class="fullWidth" appearance="outline">
+        <mat-label>Channel *</mat-label>
+        <mat-select name="FK_Channel_ID" formControlName="FK_Channel_ID" [(ngModel)]="data.FK_Channel_ID">
+          <mat-option *ngFor="let channel of channels" [value]="channel.id">{{channel.channelName}}</mat-option>          
+        </mat-select>
+        <mat-error *ngIf="
+        formInstance.controls['contentType']?.errors?.required">field required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div>
+      <mat-form-field class="fullWidth" appearance="outline">
+        <mat-label>Url *</mat-label>
+        <input matInput type="text"
+               name="url" formControlName="url">
+        <mat-error *ngIf="
+        formInstance.controls['url']?.errors?.required">field required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="">
+      <mat-form-field class="fullWidth" appearance="outline">
+        <mat-label>Content Type *</mat-label>
+        <mat-select name="contentType" formControlName="contentType">
+          <mat-option value="html">html</mat-option>
+          <mat-option value="xml">xml</mat-option>
+          <mat-option value="json">json</mat-option>
+          <mat-option value="file">file</mat-option>
+        </mat-select>
+        <mat-error *ngIf="
+        formInstance.controls['contentType']?.errors?.required">field required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div>
+      <mat-form-field class="fullWidth" appearance="outline">
+        <mat-label>Encoding </mat-label>
+        <input matInput type="text"
+               name="encoding" formControlName="encoding">
+      </mat-form-field>
+    </div>
+
+    <div>
+      <mat-form-field class="fullWidth" appearance="outline">
+        <mat-label>Method </mat-label>
+        <mat-select name="method" formControlName="method">
+          <mat-option value="get">get</mat-option>
+          <mat-option value="post">post</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div class="mt-5" mat-dialog-actions style="text-align:center">
+  <div style="margin:0 auto">
+    <button mat-raised-button color="primary"
+            [disabled]="formInstance.dirty && formInstance.status=='INVALID'" (click)="save()"
+            cdkFocusInitial>
+      Yes
+    </button>
+    <button mat-raised-button mat-dialog-close>No</button>
+  </div>
+  
+
+</div>

@@ -1,0 +1,27 @@
+<div>
+  <form (ngSubmit)="onSubmit()" [formGroup]="form">
+    <app-dynamic-form-control *ngFor="let control of controls" [control]="control" [form]="form" (outer)="controlValueChange($event)"></app-dynamic-form-control>
+
+    <!--<div class="form-row">
+      <button type="submit" [disabled]="!form.valid">Save</button>
+    </div>-->
+  </form>
+
+  <div *ngIf="origin" class="form-row">
+    <strong>origin:</strong><br>{{origin}}
+  </div>
+  <div *ngIf="changes" class="form-row">
+    <strong>changes:</strong><br />{{changes}}
+  </div>
+
+</div>
+<div class="mt-5" mat-dialog-actions style="text-align:center">
+  <div style="margin:0 auto">
+    <button mat-raised-button color="primary"
+            [disabled]="!form.valid" (click)="onSubmit()"
+            cdkFocusInitial>
+      Yes
+    </button>
+    <button mat-raised-button mat-dialog-close>No</button>
+  </div>
+</div>

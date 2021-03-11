@@ -1,0 +1,46 @@
+<div [formGroup]="form" [ngSwitch]="control.controlType">
+
+  <!--Control: Hidden-->
+  <input *ngSwitchCase="'hidden'" type="hidden" [id]="control.key" [formControlName]="control.key" />
+
+  <!--Control: Textbox-->
+  <mat-form-field *ngSwitchCase="'textbox'" class="fullWidth" appearance="outline">
+    <mat-label>{{control.label}}{{control.required ? '*':''}}</mat-label>
+    <input matInput [type]="control.type" [id]="control.key" [formControlName]="control.key" min="0" (ngModelChange)="controlValueChange($event)">
+    <mat-error *ngIf="!isValid">{{control.label}} is required</mat-error>
+  </mat-form-field>
+
+  <!--Control: Dropdown-->
+  <mat-form-field *ngSwitchCase="'dropdown'" class="fullWidth" appearance="outline">
+    <mat-label>{{control.label}}{{control.required ? '*':''}}</mat-label>
+    <mat-select *ngSwitchCase="'dropdown'" [id]="control.key" [formControlName]="control.key" (ngModelChange)="controlValueChange($event)">
+      <mat-option *ngFor="let opt of control.options" [value]="opt.key">{{opt.value}}</mat-option>
+    </mat-select>
+    <mat-error *ngIf="!isValid">{{control.label}} is required</mat-error>
+  </mat-form-field>
+
+  <!--Control: DatePicker-->
+  <mat-form-field *ngSwitchCase="'datepicker'" class="fullWidth" appearance="outline">
+    <mat-label>{{control.label}}{{control.required ? '*':''}}</mat-label>
+    <input matInput [matDatepicker]="picker1" [formControl]="form.controls[control.key]" (ngModelChange)="controlValueChange($event)">
+    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+    <mat-error *ngIf="!isValid">{{control.label}} is required</mat-error>
+  </mat-form-field>
+
+  <!--Control: MultiSelect-->
+  <app-select *ngSwitchCase="'select'" [formCtrl]="form.controls[control.key]" [control]="control" [formId]="form.controls['id'].value"
+              (outer)="controlValueChange($event)"></app-select>
+
+  <!--Control: Chips-->
+  <app-chips *ngSwitchCase="'chips'" [formCtrl]="form.controls[control.key]" [control]="control" (outer)="controlValueChange($event)"></app-chips>
+
+  <!--Control: ViewSelect-->
+  <!--<mat-form-field *ngSwitchCase="'viewselect'" class="fullWidth" appearance="outline">
+    <mat-label>{{control.label}}{{control.required ? '*':''}}</mat-label>
+    <input matInput [formControl]="form.controls[control.key]" (ngModelChange)="controlValueChange($event)">
+    <button mat-icon-button (click)=""></button>
+    <mat-error *ngIf="!isValid">{{control.label}} is required</mat-error>
+  </mat-form-field>-->
+
+</div>

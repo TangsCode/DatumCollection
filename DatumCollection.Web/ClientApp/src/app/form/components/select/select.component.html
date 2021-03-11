@@ -1,0 +1,7 @@
+
+<mat-form-field class="fullWidth" appearance="fill">
+  <mat-label>{{control.label}}{{control.required ? '*':''}}</mat-label>
+  <mat-select [formControl]="formCtrl" multiple (ngModelChange)="controlValueChange($event)">
+    <mat-option *ngFor="let opt of items" [value]="opt.key">{{opt.value}}</mat-option>
+  </mat-select>
+</mat-form-field>
