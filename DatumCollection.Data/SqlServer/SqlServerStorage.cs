@@ -12,6 +12,7 @@ using DatumCollection.Infrastructure.Data;
 using System.Reflection;
 using DatumCollection.Data.Entities;
 using System.Collections.Concurrent;
+using DatumCollection.Utility.Extensions;
 
 namespace DatumCollection.Data.SqlServer
 {
@@ -84,7 +85,7 @@ namespace DatumCollection.Data.SqlServer
                             case Operation.Update:
                                 {
                                     sql = $@"update {context.Metadata.Schema.TableName} set
-                                            {string.Join(",", context.Metadata.Columns.Where(c => !c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToArray())}
+                                            {string.Join(",", context.Metadata.Columns.Where(c => !c.IsPrimaryKey && context.Parameters.ContainsProperty(c.Name)).Select(c => c.Name + "=@" + c.Name).ToArray())}
                                             where {string.Join(" and ", context.Metadata.Columns.Where(c => c.IsPrimaryKey).Select(c => c.Name + "=@" + c.Name).ToList())}";
                                 }
                                 break;
@@ -176,7 +177,7 @@ namespace DatumCollection.Data.SqlServer
         private ConcurrentDictionary<Type, PropertyInfo> _resultProp = new ConcurrentDictionary<Type, PropertyInfo>();
         private ConcurrentDictionary<Type, MethodInfo> _methods = new ConcurrentDictionary<Type, MethodInfo>();
 
-        public async Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 1) where T: class
+        public async Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 0) where T: class
         {
             var metadata = await GetMetaData<T>();
             var context = new DataStorageContext(metadata);
@@ -311,15 +312,15 @@ namespace DatumCollection.Data.SqlServer
                     StringBuilder column = new StringBuilder();
                     column.Append(string.Join(",", metadata.Columns.Select(p => string.Concat(aliasName, ".", p.Name)).ToArray()));
                     sql.AppendLine($@"select * from {metadata.Schema.TableName} {aliasName}");
-                    if (metadata.RelationObjects.Any())
-                    {
-                        foreach (var relation in metadata.RelationObjects)
-                        {
-                            var relationAliasName = relation.MetaData.Schema.TableName.ToLower().FirstOrDefault(c => c.ToString() != aliasName).ToString();
-                            column.Append("," + string.Join(",", relation.MetaData.Columns.Select(p => string.Concat(relationAliasName, ".", p.Name)).ToArray()));
-                            sql.AppendLine($" {relation.JoinTable.JoinType.ToString().ToLower()} join {relation.MetaData.Schema.TableName} {relationAliasName} on {aliasName}.{relation.JoinTable.ProviderKey}={relationAliasName}.{relation.JoinTable.ForeignKey}");
-                        }
-                    }
+                    //if (metadata.RelationObjects.Any())
+                    //{
+                    //    foreach (var relation in metadata.RelationObjects)
+                    //    {
+                    //        var relationAliasName = relation.MetaData.Schema.TableName.ToLower().FirstOrDefault(c => c.ToString() != aliasName).ToString();
+                    //        column.Append("," + string.Join(",", relation.MetaData.Columns.Select(p => string.Concat(relationAliasName, ".", p.Name)).ToArray()));
+                    //        sql.AppendLine($" {relation.JoinTable.JoinType.ToString().ToLower()} join {relation.MetaData.Schema.TableName} {relationAliasName} on {aliasName}.{relation.JoinTable.ProviderKey}={relationAliasName}.{relation.JoinTable.ForeignKey}");
+                    //    }
+                    //}
                     sql.Replace("*", column.ToString());
                     result = await conn.QueryAsync<T>(sql.ToString(), null, transaction);
                     if (condition != null)
@@ -429,12 +430,12 @@ namespace DatumCollection.Data.SqlServer
             return result;
         }
 
-        public async Task<DbExecutionResult> Update<T>(T entity)
+        public async Task<DbExecutionResult> Update<T>(dynamic entity)
         {
             var result = new DbExecutionResult();
             try
             {
-                var metadata = await GetMetaData<T>(entity.GetType());
+                var metadata = await GetMetaData<T>();
                 var context = new DataStorageContext
                 {
                     Metadata = metadata,

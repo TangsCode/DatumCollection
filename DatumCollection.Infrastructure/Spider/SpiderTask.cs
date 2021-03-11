@@ -20,6 +20,12 @@ namespace DatumCollection.Infrastructure.Spider
         [Column(Name = "ElapsedTime", Type = "float")]
         public double ElapsedTime { get { return FinishTime == null ? 0 : (FinishTime - BeginTime).TotalSeconds; } }
 
+        [Column(Name = "SuccessCount", Type = "int")]
+        public int SuccessCount { get; set; }
+
+        [Column(Name = "FailedCount", Type = "int")]
+        public int FailedCount { get; set; }
+
         public SpiderTask()
         {
             Id = Guid.NewGuid();

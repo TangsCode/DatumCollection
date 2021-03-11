@@ -53,7 +53,7 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "IsEnabled", Type = "bit")]
         public bool IsEnabled { get; set; }
 
-        [JoinTable("ID", "FK_SpiderSchedule_ID",JoinType.Left)]
+        [JoinTable("ID", "FK_SpiderSchedule_ID", JoinType.Left)]
         public IEnumerable<SpiderScheduleItems> SpiderScheduleItems { get; set; }
     }
 

@@ -40,7 +40,7 @@ namespace DatumCollection.Utility.Extensions
                 return false;
             }
             IDictionary<string, object> properties = (IDictionary<string, object>)dynamicObject;
-            return properties.ContainsKey(key);
+            return properties.ContainsKey(key) || properties.ContainsKey(key.Substring(0, 1).ToLower() + key.Substring(1));
         }
 
         public static dynamic AddProperty(this object dynamicObject, string key, object value)

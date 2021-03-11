@@ -33,7 +33,6 @@ namespace DatumCollection.HostedServices.Schedule
             _mq = mq;
             _storage = storage;
             _config = config;
-
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
@@ -60,16 +59,16 @@ namespace DatumCollection.HostedServices.Schedule
                     _logger.LogInformation("schedules retriving, count {count}", schedules.Count());
                     Parallel.ForEach(schedules, async schedule =>
                     {
-                        var scheduleItems = await _storage.Query<SpiderScheduleItems<T>, SpiderItem<T>, Channel >(
-                            (scheduleitem, item, channel ) =>
+                        var scheduleItems = await _storage.Query<SpiderScheduleItems, SpiderItem<T>, Channel>(
+                            (scheduleitem, item, channel) =>
                             {
+                                scheduleitem.FK_SpiderSchedule_ID = schedule.ID ?? Guid.Empty;
                                 item.Channel = channel;
-                                scheduleitem.SpiderItem = item;
-                                scheduleitem.SpiderScheduleSetting = schedule;
+                                scheduleitem.SpiderItem = item;                                
                                 return scheduleitem;
                             }
                             );
-                        var items = scheduleItems.Select(si => si.SpiderItem);
+                        var items = scheduleItems.Select(si => (SpiderItem<T>)si.SpiderItem);
                         if (items.Any())
                         {
                             var spiderContext = new SpiderContext();
@@ -77,14 +76,15 @@ namespace DatumCollection.HostedServices.Schedule
                             {
                                 var atom = new SpiderAtom
                                 {
-                                    SpiderItem = item,
+                                    //SpiderItem = item,
                                     Request = new HttpRequest
                                     {
                                         Url = item.Url,
                                         Method = item.Method ?? "Get",
                                         ContentType = (ContentType)Enum.Parse(typeof(ContentType), item.ContentType ?? ContentType.Html.ToString(), true),
                                         Encoding = Encoding.GetEncoding(item.Encoding ?? "utf-8")
-                                    }
+                                    },
+                                    SpiderItem = item,
                                 };
                                 spiderContext.SpiderAtoms.Add(atom);
                             }

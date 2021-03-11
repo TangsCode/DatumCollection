@@ -36,7 +36,7 @@ namespace DatumCollection.Data
         /// <typeparam name="T"></typeparam>
         /// <param name="condition">数据满足条件</param>
         /// <returns></returns>
-        Task<IEnumerable<T>> Query<T>(Func<T, bool> condition) where T : class;
+        Task<IEnumerable<T>> Query<T>(Func<T, bool> condition = null) where T : class;
         
         /// <summary>
         /// 递归查询
@@ -47,7 +47,7 @@ namespace DatumCollection.Data
         /// <typeparam name="T"></typeparam>
         /// <param name="condition">数据满足条件</param>
         /// <returns></returns>
-        Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 1) where T: class;
+        Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 0) where T: class;
 
         /// <summary>
         /// 递归查询
@@ -106,7 +106,7 @@ namespace DatumCollection.Data
         /// <typeparam name="T"></typeparam>
         /// <param name="entity"></param>
         /// <returns></returns>
-        Task<DbExecutionResult> Update<T>(T entity);
+        Task<DbExecutionResult> Update<T>(object entity);
 
         /// <summary>
         /// 删除实体

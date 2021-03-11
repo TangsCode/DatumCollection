@@ -183,11 +183,6 @@ namespace DatumCollection.Data.MySql
             throw new NotImplementedException();
         }
 
-        public Task<DbExecutionResult> Update<T>(T entity)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<DbExecutionResult> Delete<T>(T entity)
         {
             throw new NotImplementedException();
@@ -198,12 +193,17 @@ namespace DatumCollection.Data.MySql
             throw new NotImplementedException();
         }
          
-        public Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 1) where T : class
+        public Task<IEnumerable<T>> RecursiveQuery<T>(object param = null, int depth = 0) where T : class
         {
             throw new NotImplementedException();
         }
 
         public Task<IEnumerable<object>> RecursiveQueryWithType(Type type, object param = null, int depth = 1)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<DbExecutionResult> Update<T>(object entity)
         {
             throw new NotImplementedException();
         }
