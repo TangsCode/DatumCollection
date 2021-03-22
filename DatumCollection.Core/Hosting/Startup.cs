@@ -28,8 +28,9 @@ namespace DatumCollection.Core.Hosting
             /*
              step two 
              extract data from the content collected alerady
+             using only when downloading html file from server
              */
-            app.UseExtractor();
+            //app.UseExtractor();
 
             /*
              step three 
@@ -51,7 +52,7 @@ namespace DatumCollection.Core.Hosting
                 (c) => c.UseSqlServer());
             services.AddSpiderCollector(
                 b => b.UseWebDriver());
-            services.AddSpiderExtractor();
+            //services.AddSpiderExtractor();
             services.AddSpiderStorage();
             services.AddSpiderStatistics();
             services.AddSpider<ElectronicCommerceWebsiteSpider>();
