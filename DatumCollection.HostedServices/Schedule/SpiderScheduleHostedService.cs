@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace DatumCollection.HostedServices.Schedule
 {
-    public class SpiderScheduleHostedService<T> : IHostedService where T : ISpider
+    public class SpiderScheduleHostedService<T> : IHostedService where T : ISpider, new()
     {
         private readonly ILogger<SpiderScheduleHostedService<T>> _logger;
         private readonly IMessageQueue _mq;
@@ -72,11 +72,11 @@ namespace DatumCollection.HostedServices.Schedule
                         if (items.Any())
                         {
                             var spiderContext = new SpiderContext();
+                            var spiderFields = schedule.GetType().GetProperties().Where(p => p.Name.ToString().StartsWith("get")).Select(p => p.Name.Replace("get", ""));
                             foreach (var item in items)
                             {
                                 var atom = new SpiderAtom
                                 {
-                                    //SpiderItem = item,
                                     Request = new HttpRequest
                                     {
                                         Url = item.Url,
@@ -85,6 +85,8 @@ namespace DatumCollection.HostedServices.Schedule
                                         Encoding = Encoding.GetEncoding(item.Encoding ?? "utf-8")
                                     },
                                     SpiderItem = item,
+                                    Model = new T(),
+                                    SpiderFields = spiderFields
                                 };
                                 spiderContext.SpiderAtoms.Add(atom);
                             }

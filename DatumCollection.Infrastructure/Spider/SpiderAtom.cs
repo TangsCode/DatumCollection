@@ -28,6 +28,11 @@ namespace DatumCollection.Infrastructure.Spider
         public ISpider Model { get; set; }
 
         /// <summary>
+        /// spider data category
+        /// </summary>
+        public IEnumerable<string> SpiderFields { get; set; }
+
+        /// <summary>
         /// spider item that contains spider config
         /// </summary>
         public ISpiderItem SpiderItem { get; set; }

@@ -55,6 +55,29 @@ namespace DatumCollection.Data.Entities
 
         [JoinTable("ID", "FK_SpiderSchedule_ID", JoinType.Left)]
         public IEnumerable<SpiderScheduleItems> SpiderScheduleItems { get; set; }
+
+        #region 数据是否采集
+        [Column(Name = "getPrice", Type = "bit")]
+        public bool getPrice { get; set; }
+
+        [Column(Name = "getPostage", Type = "bit")]
+        public bool getPostage { get; set; }
+
+        [Column(Name = "getPreferential", Type = "bit")]
+        public bool getPreferential { get; set; }
+
+        [Column(Name = "getCoupon", Type = "bit")]
+        public bool getCoupon { get; set; }
+
+        [Column(Name = "getImageFile", Type = "bit")]
+        public bool getImageFile { get; set; }
+
+        [Column(Name = "getTaxFee", Type = "bit")]
+        public bool getTaxFee { get; set; }
+
+        [Column(Name = "getScreenshot", Type = "bit")]
+        public bool getScreenshot { get; set; }
+        #endregion
     }
 
     public enum SpiderFrequency

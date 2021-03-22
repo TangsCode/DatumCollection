@@ -1,18 +1,13 @@
-﻿using DatumCollection.Core.Builder;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using DatumCollection.Data;
 using DatumCollection.Data.SqlServer;
 using DatumCollection.Data.MySql;
 using DatumCollection.MessageQueue;
 using DatumCollection.MessageQueue.Kafka;
 using DatumCollection.MessageQueue.RabbitMQ;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using DatumCollection.HostedServices;
 using DatumCollection.Pipline;
 using DatumCollection.Infrastructure.Abstraction;
-using DatumCollection.Pipline.Collector;
 using DatumCollection.Pipline.Collectors;
 using DatumCollection.HostedServices.Schedule;
 using DatumCollection.MessageQueue.EventBus;
@@ -75,7 +70,7 @@ namespace DatumCollection.Core
         #endregion
 
         #region specify spider type(checking schedule and run as hosted service)
-        public static IServiceCollection AddSpider<T>(this IServiceCollection services) where T:class, ISpider
+        public static IServiceCollection AddSpider<T>(this IServiceCollection services) where T:class, ISpider, new ()
         {
             services.AddHostedService<SpiderScheduleHostedService<T>>();
             //services.AddSingleton<ISpider, T>();
@@ -126,7 +121,7 @@ namespace DatumCollection.Core
         }
         #endregion
 
-        #region Statistics 
+        #region Spider Statistics 
         public static IServiceCollection AddSpiderStatistics(this IServiceCollection services,
             Action<PiplineServiceBuilder> action = null)
         {

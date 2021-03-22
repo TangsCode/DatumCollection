@@ -17,9 +17,9 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "Price", Type = "decimal", Precision = 10, Scale = 2)]
         public decimal Price { get; set; }
 
-        [Column(Name = "ScreenshotPath")]
-        public string ScreenshotPath { get; set; }
-
+        [Column(Name = "Screenshot")]
+        public string Screenshot { get; set; }
+         
         [Column(Name = "TaxFee", Type = "decimal", Precision = 10, Scale = 2)]
         public decimal TaxFee { get; set; }
 
@@ -32,11 +32,14 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "Coupon")]
         public string Coupon { get; set; }
 
+        [Column(Name = "ImageFile")]
+        public string ImageFile { get; set; }
+
         [Column(Name = "ImageText")]
         public string ImageText { get; set; }
 
         [Column(Name = "FK_SpiderItem_ID", Type = "uniqueidentifier")]
-        public Guid FK_SpiderItem_ID { get; set; }
+        public Guid? FK_SpiderItem_ID { get; set; }
 
         [JoinTable("FK_SpiderItem_ID")]
         public SpiderSource SpiderSource { get; set; }
