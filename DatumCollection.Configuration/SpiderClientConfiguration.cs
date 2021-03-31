@@ -105,7 +105,7 @@ namespace DatumCollection.Configuration
         /// web driver process count
         /// </summary>
         public virtual int WebDriverProcessCount => _webdriver.GetSection("processes") != null
-            ? int.Parse(_webdriver.GetSection("processes").Value) : 10;
+            ? int.Parse(_webdriver.GetSection("processes").Value) : 1;
 
         #endregion
 
@@ -182,6 +182,9 @@ namespace DatumCollection.Configuration
         public virtual int EmailPort => int.Parse(_email.GetSection("port")?.Value);
         #endregion
 
+        #region redis config
+        public RedisConfiguration RedisConfiguration => GetConfigInfo<RedisConfiguration>("redis");
+        #endregion
         public T GetConfigInfo<T>(string key)
         {
             var value = _configuration[key];
