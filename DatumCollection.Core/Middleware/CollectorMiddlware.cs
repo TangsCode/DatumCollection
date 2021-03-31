@@ -44,11 +44,11 @@ namespace DatumCollection.Core.Middleware
         {
             try
             {
-                _logger.LogInformation("Task[{task}] reaches {middleware}, atom count {count}", context.Task.Id, nameof(StorageMiddleware),context.SpiderAtoms.Count);              
-                foreach (var atom in context.SpiderAtoms.StatusOk())
-                {
-                    await _collector.CollectAsync(atom);
-                }
+                _logger.LogInformation("Task[{task}] reaches {middleware}, atom count {count}", context.Task.Id, nameof(StorageMiddleware),context.SpiderAtoms.Count);
+                Parallel.ForEach(context.SpiderAtoms, async atom =>
+                 {
+                     await _collector.CollectAsync(atom);
+                 });
                 _logger.LogInformation("{middleware} process {count} atoms completed.", nameof(CollectorMiddlware), context.SpiderAtoms.Count);
             }
             catch (Exception e)
