@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Authors>TangsCode</Authors>
-    <Company>TangsCode</Company>
-    <Description>spider configuration</Description>
-    <Version>2.0.0</Version>
+    <Authors>tangscode</Authors>
+    <Company>@tangscode</Company>
+    <Description>configuration for the system</Description>
+    <Version>2.1.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 

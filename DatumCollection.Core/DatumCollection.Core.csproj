@@ -3,19 +3,26 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>false</SignAssembly>
-    <Description>DatumCollection.Core is the core library for spider, including spider hosting, pipline middleware integration, dependency injection of services</Description>
+    <Description>core library for spider,starting up the host and and assign the activities of the the client</Description>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Copyright>Copyright (c) 2020 TangsCode</Copyright>
-    <PackageLicenseUrl>https://github.com/TangsCode/DatumCollection/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/TangsCode/DatumCollection</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/TangsCode/DatumCollection.git</RepositoryUrl>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
-    <Version>2.1.1</Version>
+    <Copyright>@tangscode 2021</Copyright>
+    <PackageLicenseUrl>https://github.com/tangnewstar/datumcollection/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/tangnewstar/datumcollection</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tangnewstar/datumcollection.git</RepositoryUrl>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
+    <Version>2.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>   
+    <!--<PackageReference Include="DatumCollection.Cache" Version="1.0.0" />
+    <PackageReference Include="DatumCollection.Data" Version="2.2.0" />
+    <PackageReference Include="DatumCollection.HostedServices" Version="2.2.0" />
+    <PackageReference Include="DatumCollection.Infrastructure" Version="2.1.0" />
+    <PackageReference Include="DatumCollection.MessageQueue" Version="2.2.0" />
+    <PackageReference Include="DatumCollection.Pipline" Version="2.2.0" />
+    <PackageReference Include="DatumCollection.Utility" Version="2.1.0" />-->
     <PackageReference Include="microsoft.extensions.dependencyinjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
@@ -32,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DatumCollection.Cache\DatumCollection.Cache.csproj" />
     <ProjectReference Include="..\DatumCollection.Data\DatumCollection.Data.csproj" />
     <ProjectReference Include="..\DatumCollection.HostedServices\DatumCollection.HostedServices.csproj" />
     <ProjectReference Include="..\DatumCollection.Infrastructure\DatumCollection.Infrastructure.csproj" />

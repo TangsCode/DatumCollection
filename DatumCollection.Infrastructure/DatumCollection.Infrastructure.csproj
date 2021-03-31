@@ -2,7 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.0.0</Version>
+    <Version>2.1.0</Version>
+    <Description>infrastructure design and concept of the framework</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>@tangscode 2021</Copyright>
+    <PackageLicenseUrl>https://github.com/tangnewstar/datumcollection/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
 </Project>
