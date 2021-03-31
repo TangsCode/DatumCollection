@@ -19,6 +19,11 @@ namespace DatumCollection.Infrastructure.Spider
             SpiderAtoms = new HashSet<SpiderAtom>();
             Task = new SpiderTask();
         }
+
+        public SpiderContext(Guid taskParentId): this()
+        {
+            Task.FK_ScheduleSetting_ID = taskParentId;
+        }
     }
 
     public enum SpiderStatus

@@ -26,17 +26,17 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "ScheduleMonthOfYear", Type = "int")]
         public int ScheduleMonthOfYear { get; set; }
 
-        [Column(Name ="StartTime", Type = "datetime")]
+        [Column(Name ="StartTime")]
         /// <summary>
         /// start time of every day
         /// </summary>
-        public DateTime StartTime { get; set; }
+        public string StartTime { get; set; }
 
-        [Column(Name = "EndTime", Type = "datetime")]
+        [Column(Name = "EndTime")]
         /// <summary>
         /// end time of every day
         /// </summary>
-        public DateTime EndTime { get; set; }
+        public string EndTime { get; set; }
 
         [Column(Name = "StartDate", Type = "datetime")]
         /// <summary>

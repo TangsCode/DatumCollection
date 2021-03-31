@@ -61,18 +61,17 @@ namespace DatumCollection.HostedServices.Schedule
                     {
                         var scheduleItems = await _storage.Query<SpiderScheduleItems, SpiderItem<T>, Channel>(
                             (scheduleitem, item, channel) =>
-                            {
-                                scheduleitem.FK_SpiderSchedule_ID = schedule.ID ?? Guid.Empty;
+                            {                                
                                 item.Channel = channel;
                                 scheduleitem.SpiderItem = item;                                
                                 return scheduleitem;
-                            }
+                            },si => si.FK_SpiderSchedule_ID == schedule.ID
                             );
                         var items = scheduleItems.Select(si => (SpiderItem<T>)si.SpiderItem);
                         if (items.Any())
                         {
-                            var spiderContext = new SpiderContext();
-                            var spiderFields = schedule.GetType().GetProperties().Where(p => p.Name.ToString().StartsWith("get")).Select(p => p.Name.Replace("get", ""));
+                            var spiderContext = new SpiderContext(schedule.ID);
+                            var spiderFields = schedule.GetType().GetProperties().Where(p => p.Name.ToString().StartsWith("get") && (bool)p.GetValue(schedule) == true).Select(p => p.Name.Replace("get", ""));
                             foreach (var item in items)
                             {
                                 var atom = new SpiderAtom
@@ -88,6 +87,10 @@ namespace DatumCollection.HostedServices.Schedule
                                     Model = new T(),
                                     SpiderFields = spiderFields
                                 };
+                                var prop = typeof(T).GetProperties()?.FirstOrDefault(p => p.Name == "FK_SpiderItem_ID");
+                                prop?.SetValue(atom.Model, ((SpiderSource)atom.SpiderItem).ID);
+                                var spiderTaskProp = typeof(T).GetProperties()?.FirstOrDefault(p => p.Name == "FK_SpiderTask_ID");
+                                spiderTaskProp?.SetValue(atom.Model, spiderContext.Task.Id);
                                 spiderContext.SpiderAtoms.Add(atom);
                             }
 

@@ -41,6 +41,9 @@ namespace DatumCollection.Data.Entities
         [Column(Name = "FK_SpiderItem_ID", Type = "uniqueidentifier")]
         public Guid? FK_SpiderItem_ID { get; set; }
 
+        [Column(Name = "FK_SpiderTask_ID", Type = "uniqueidentifier")]
+        public Guid FK_SpiderTask_ID { get; set; }
+
         [JoinTable("FK_SpiderItem_ID")]
         public SpiderSource SpiderSource { get; set; }
 

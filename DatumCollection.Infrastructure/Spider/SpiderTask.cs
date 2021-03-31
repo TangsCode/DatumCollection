@@ -11,6 +11,9 @@ namespace DatumCollection.Infrastructure.Spider
         [Column(Name = "ID", Type = "uniqueidentifier")]
         public Guid Id { get; set; }
 
+        [Column(Name = "FK_ScheduleSetting_ID", Type = "uniqueidentifier")]
+        public Guid FK_ScheduleSetting_ID { get; set; }
+
         [Column(Name = "BeginTime", Type = "datetime")]
         public DateTime BeginTime { get; set; }
 

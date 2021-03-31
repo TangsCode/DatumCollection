@@ -15,7 +15,7 @@ namespace DatumCollection.HostedServices.Schedule
             }
 
             var dateSpan = DateTime.Now.Date.Subtract(schedule.StartDate);
-            var timeSpan = DateTime.Now.TimeOfDay.Subtract(schedule.StartTime.TimeOfDay);
+            var timeSpan = DateTime.Now.TimeOfDay.Subtract(Convert.ToDateTime(schedule.StartTime).TimeOfDay);
             switch (schedule.SpiderFrequency)
             {
                 case SpiderFrequency.Once:
